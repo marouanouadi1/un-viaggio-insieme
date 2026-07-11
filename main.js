@@ -18,7 +18,7 @@
   var subtitleEl = document.querySelector('[data-cfg="hero-subtitle"]');
   if (subtitleEl) {
     var subtitle = "Oggi si festeggia te.";
-    if (cfg.age) subtitle += " Oggi ne compi " + cfg.age + ".";
+    if (cfg.age) subtitle += " Oggi ne compi " + cfg.age + " anni.";
     subtitleEl.textContent = subtitle;
   }
 
@@ -26,6 +26,25 @@
   if (noteEl && cfg.personalNote && cfg.personalNote.trim()) {
     noteEl.textContent = cfg.personalNote.trim();
     noteEl.classList.remove("hidden");
+  }
+
+  var teaseSection = document.getElementById("tease-section");
+  var teaseLines = Array.isArray(cfg.teaseLines) ? cfg.teaseLines.filter(Boolean) : [];
+  if (teaseSection) {
+    if (teaseLines.length) {
+      var teaseEyebrowEl = teaseSection.querySelector('[data-cfg="tease-eyebrow"]');
+      if (teaseEyebrowEl) teaseEyebrowEl.textContent = cfg.teaseEyebrow || "";
+      var teaseLinesEl = document.getElementById("tease-lines");
+      teaseLines.forEach(function (line, i) {
+        var span = document.createElement("span");
+        span.className = "line" + (i === teaseLines.length - 1 ? " line--soft" : "");
+        span.setAttribute("data-reveal", "");
+        span.textContent = line;
+        teaseLinesEl.appendChild(span);
+      });
+    } else {
+      teaseSection.remove();
+    }
   }
 
   /* --------------------------------------------------------------------
