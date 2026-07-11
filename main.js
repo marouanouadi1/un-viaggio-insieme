@@ -48,91 +48,225 @@
   }
 
   /* --------------------------------------------------------------------
-   * 2) La nostra storia: timeline verticale (config.timeline)
-   * Crea le tappe nel DOM. La meccanica di scroll (linea + aeroplanino)
-   * viene agganciata più avanti, dopo che GSAP/ScrollTrigger sono pronti.
+   * 2) La nostra storia: racconto a zigzag (config.timeline)
+   * La sequenza alterna:
+   * - "capitoli": tappe consecutive con la propria linea a zigzag
+   *   (creata qui come struttura; il percorso vero e proprio viene
+   *   disegnato più avanti, quando GSAP/ScrollTrigger sono pronti).
+   * - "momenti": pause a schermo intero (testo e/o foto/video).
    * ------------------------------------------------------------------ */
   var timelineVideos = [];
+  var SVG_NS = "http://www.w3.org/2000/svg";
 
-  function buildTimelineNodes() {
-    var stops = Array.isArray(cfg.timeline) ? cfg.timeline.filter(Boolean) : [];
-    var section = document.getElementById("timeline-section");
-    var nodesEl = document.getElementById("timeline-nodes");
-    if (!nodesEl || !stops.length) {
-      if (section) section.remove();
-      return false;
+  function buildTimelineStopNode(stop, indexInChapter) {
+    var side = stop.side === "left" || stop.side === "right" ? stop.side : (indexInChapter % 2 === 0 ? "left" : "right");
+
+    var node = document.createElement("article");
+    node.className = "timeline__node timeline__node--" + side;
+    node.setAttribute("data-reveal", "");
+
+    var dot = document.createElement("span");
+    dot.className = "timeline__dot";
+    dot.setAttribute("aria-hidden", "true");
+    node.appendChild(dot);
+
+    var card = document.createElement("div");
+    card.className = "timeline__card";
+
+    if (stop.date) {
+      var dateEl = document.createElement("p");
+      dateEl.className = "timeline__date";
+      dateEl.textContent = stop.date;
+      card.appendChild(dateEl);
+    }
+    if (stop.title) {
+      var titleEl = document.createElement("h3");
+      titleEl.className = "timeline__title-text";
+      titleEl.textContent = stop.title;
+      card.appendChild(titleEl);
+    }
+    if (stop.text) {
+      var textEl = document.createElement("p");
+      textEl.className = "timeline__text";
+      textEl.textContent = stop.text;
+      card.appendChild(textEl);
     }
 
-    stops.forEach(function (stop, i) {
-      var side = stop.side === "left" || stop.side === "right" ? stop.side : (i % 2 === 0 ? "left" : "right");
+    var media = Array.isArray(stop.media) ? stop.media.filter(Boolean) : [];
+    media.forEach(function (m) {
+      var mediaWrap = document.createElement("div");
+      mediaWrap.className = "timeline__media";
 
-      var node = document.createElement("article");
-      node.className = "timeline__node timeline__node--" + side;
-      node.setAttribute("data-reveal", "");
-
-      var dot = document.createElement("span");
-      dot.className = "timeline__dot";
-      dot.setAttribute("aria-hidden", "true");
-      node.appendChild(dot);
-
-      var card = document.createElement("div");
-      card.className = "timeline__card";
-
-      if (stop.date) {
-        var dateEl = document.createElement("p");
-        dateEl.className = "timeline__date";
-        dateEl.textContent = stop.date;
-        card.appendChild(dateEl);
+      var el;
+      if (m.type === "video") {
+        el = document.createElement("video");
+        el.src = m.src;
+        el.muted = true;
+        el.loop = true;
+        el.playsInline = true;
+        el.setAttribute("preload", "metadata");
+        timelineVideos.push(el);
+      } else {
+        el = document.createElement("img");
+        el.src = m.src;
+        el.alt = m.caption || stop.title || "";
+        el.loading = "lazy";
       }
-      if (stop.title) {
-        var titleEl = document.createElement("h3");
-        titleEl.className = "timeline__title-text";
-        titleEl.textContent = stop.title;
-        card.appendChild(titleEl);
+      mediaWrap.appendChild(el);
+
+      if (m.caption) {
+        var cap = document.createElement("p");
+        cap.className = "timeline__caption";
+        cap.textContent = m.caption;
+        mediaWrap.appendChild(cap);
       }
-      if (stop.text) {
-        var textEl = document.createElement("p");
-        textEl.className = "timeline__text";
-        textEl.textContent = stop.text;
-        card.appendChild(textEl);
-      }
-
-      var media = Array.isArray(stop.media) ? stop.media.filter(Boolean) : [];
-      media.forEach(function (m) {
-        var mediaWrap = document.createElement("div");
-        mediaWrap.className = "timeline__media";
-
-        var el;
-        if (m.type === "video") {
-          el = document.createElement("video");
-          el.src = m.src;
-          el.muted = true;
-          el.loop = true;
-          el.playsInline = true;
-          el.setAttribute("preload", "metadata");
-          timelineVideos.push(el);
-        } else {
-          el = document.createElement("img");
-          el.src = m.src;
-          el.alt = m.caption || stop.title || "";
-          el.loading = "lazy";
-        }
-        mediaWrap.appendChild(el);
-
-        if (m.caption) {
-          var cap = document.createElement("p");
-          cap.className = "timeline__caption";
-          cap.textContent = m.caption;
-          mediaWrap.appendChild(cap);
-        }
-        card.appendChild(mediaWrap);
-      });
-
-      node.appendChild(card);
-      nodesEl.appendChild(node);
+      card.appendChild(mediaWrap);
     });
 
-    // Video: partono solo quando la tappa è visibile, altrimenti in pausa.
+    node.appendChild(card);
+    return node;
+  }
+
+  function buildTimelineMoment(item) {
+    var hasMedia = !!(item.media && item.media.src);
+    var hasText = !!((item.title && item.title.trim()) || (item.text && item.text.trim()));
+
+    var el = document.createElement("div");
+    el.className = "timeline__moment" + (!hasMedia ? " timeline__moment--text" : "");
+    el.setAttribute("data-reveal", "");
+
+    if (hasMedia) {
+      var mediaWrap = document.createElement("div");
+      mediaWrap.className = "timeline__moment__media";
+
+      var mediaEl;
+      if (item.media.type === "video") {
+        mediaEl = document.createElement("video");
+        mediaEl.src = item.media.src;
+        mediaEl.muted = true;
+        mediaEl.loop = true;
+        mediaEl.playsInline = true;
+        mediaEl.setAttribute("preload", "metadata");
+        timelineVideos.push(mediaEl);
+      } else {
+        mediaEl = document.createElement("img");
+        mediaEl.src = item.media.src;
+        mediaEl.alt = item.title || "";
+        mediaEl.loading = "lazy";
+      }
+      mediaWrap.appendChild(mediaEl);
+      el.appendChild(mediaWrap);
+
+      var scrim = document.createElement("div");
+      scrim.className = "timeline__moment__scrim";
+      scrim.setAttribute("aria-hidden", "true");
+      el.appendChild(scrim);
+    }
+
+    if (hasText) {
+      var content = document.createElement("div");
+      content.className = "timeline__moment__content";
+      if (item.title) {
+        var titleEl = document.createElement("h3");
+        titleEl.className = "timeline__moment__title";
+        titleEl.textContent = item.title;
+        content.appendChild(titleEl);
+      }
+      if (item.text) {
+        var textEl = document.createElement("p");
+        textEl.className = "timeline__moment__text";
+        textEl.textContent = item.text;
+        content.appendChild(textEl);
+      }
+      el.appendChild(content);
+    }
+
+    return el;
+  }
+
+  function buildTimelineChapter(stops) {
+    var chapter = document.createElement("div");
+    chapter.className = "timeline__chapter";
+
+    // La linea a zigzag ha bisogno di almeno due pallini da collegare:
+    // con una sola tappa, il capitolo mostra solo la tappa, senza linea.
+    var hasPath = stops.length >= 2;
+    if (hasPath) {
+      var svg = document.createElementNS(SVG_NS, "svg");
+      svg.setAttribute("class", "timeline__chapter-svg");
+      svg.setAttribute("aria-hidden", "true");
+
+      var bgPath = document.createElementNS(SVG_NS, "path");
+      bgPath.setAttribute("class", "timeline__chapter-line-bg");
+      bgPath.setAttribute("fill", "none");
+      bgPath.setAttribute("stroke", "var(--terracotta)");
+      bgPath.setAttribute("stroke-width", "3");
+      bgPath.setAttribute("stroke-linecap", "round");
+      bgPath.setAttribute("stroke-dasharray", "2 11");
+
+      var fillPath = document.createElementNS(SVG_NS, "path");
+      fillPath.setAttribute("class", "timeline__chapter-line-fill");
+      fillPath.setAttribute("fill", "none");
+      fillPath.setAttribute("stroke", "var(--terracotta-deep)");
+      fillPath.setAttribute("stroke-width", "3");
+      fillPath.setAttribute("stroke-linecap", "round");
+
+      svg.appendChild(bgPath);
+      svg.appendChild(fillPath);
+      chapter.appendChild(svg);
+
+      var plane = document.createElement("div");
+      plane.className = "timeline__plane";
+      plane.setAttribute("aria-hidden", "true");
+      plane.innerHTML =
+        '<svg class="timeline__plane-icon" viewBox="0 0 64 64">' +
+        '<path d="M32 58 L58 8 L32 20 L6 8 Z" fill="var(--white-warm)" stroke="var(--terracotta-deep)" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M32 58 L32 20 L6 8 Z" fill="var(--cream-deep)"/>' +
+        "</svg>";
+      chapter.appendChild(plane);
+    }
+
+    var nodesEl = document.createElement("div");
+    nodesEl.className = "timeline__nodes";
+    stops.forEach(function (stop, i) {
+      nodesEl.appendChild(buildTimelineStopNode(stop, i));
+    });
+    chapter.appendChild(nodesEl);
+
+    return { el: chapter, hasPath: hasPath };
+  }
+
+  function buildTimelineSequence() {
+    var items = Array.isArray(cfg.timeline) ? cfg.timeline.filter(Boolean) : [];
+    var section = document.getElementById("timeline-section");
+    var mount = document.getElementById("timeline-sequence");
+    if (!mount || !items.length) {
+      if (section) section.remove();
+      return [];
+    }
+
+    var chapters = [];
+    var currentStops = [];
+
+    function flushChapter() {
+      if (!currentStops.length) return;
+      var built = buildTimelineChapter(currentStops);
+      mount.appendChild(built.el);
+      if (built.hasPath) chapters.push(built.el);
+      currentStops = [];
+    }
+
+    items.forEach(function (item) {
+      if (item.type === "moment") {
+        flushChapter();
+        mount.appendChild(buildTimelineMoment(item));
+      } else {
+        currentStops.push(item);
+      }
+    });
+    flushChapter();
+
+    // Video: partono solo quando sono visibili, altrimenti in pausa.
     if (timelineVideos.length) {
       if ("IntersectionObserver" in window) {
         var io = new IntersectionObserver(
@@ -153,10 +287,10 @@
       }
     }
 
-    return true;
+    return chapters;
   }
 
-  var timelineExists = buildTimelineNodes();
+  var timelineChapters = buildTimelineSequence();
 
   /* --------------------------------------------------------------------
    * 3) Audio: musica di sottofondo (file da config.js) con fallback
@@ -309,61 +443,138 @@
   }
 
   /* --------------------------------------------------------------------
-   * 5) La nostra storia: meccanica di scroll della timeline.
-   * Un unico ScrollTrigger scrubbato lega, all'avanzare dello scroll:
-   * - il "disegno" della linea di volo (altezza della spine-fill 0% → 100%)
-   * - la discesa dell'aeroplanino lungo la spine, con una leggera
-   *   oscillazione orizzontale e un piccolo "bank" rotatorio, per dare
-   *   l'idea del volo.
+   * 5) La nostra storia: meccanica dello zigzag.
+   * Per ogni capitolo: la linea collega i pallini delle tappe con una
+   * curva a zigzag (ricalcolata a ogni cambio di layout — font, immagini,
+   * resize). Un ScrollTrigger scrubbato per capitolo lega, all'avanzare
+   * dello scroll:
+   * - il "disegno" della curva (stroke-dashoffset dal totale a 0)
+   * - la posizione dell'aeroplanino lungo la curva vera (getPointAtLength),
+   *   con la rotazione presa dalla tangente della curva in quel punto
+   * - una leggera dissolvenza in entrata/uscita dell'aeroplanino, per un
+   *   "cambio di pagina" tra un capitolo e il successivo (o un momento).
    * ------------------------------------------------------------------ */
-  function setupTimelineScroll() {
-    var path = document.getElementById("timeline-path");
-    var plane = document.getElementById("timeline-plane");
-    var spineFill = document.getElementById("timeline-spine-fill");
-    if (!path || !plane) return;
+  function debounce(fn, wait) {
+    var t;
+    return function () {
+      var args = arguments;
+      clearTimeout(t);
+      t = setTimeout(function () {
+        fn.apply(null, args);
+      }, wait);
+    };
+  }
 
-    var PLANE_SIZE = 38; // deve combaciare con la larghezza in styles.css
+  function rebuildChapterPath(chapter) {
+    var svg = chapter.querySelector(".timeline__chapter-svg");
+    var bgPath = chapter.querySelector(".timeline__chapter-line-bg");
+    var fillPath = chapter.querySelector(".timeline__chapter-line-fill");
+    var dots = Array.prototype.slice.call(chapter.querySelectorAll(".timeline__dot"));
+    if (!svg || !bgPath || !fillPath || dots.length < 2) return;
+
+    var chapterRect = chapter.getBoundingClientRect();
+    var w = chapter.clientWidth;
+    var h = chapter.clientHeight;
+    if (!w || !h) return;
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+
+    var points = dots.map(function (dot) {
+      var r = dot.getBoundingClientRect();
+      return {
+        x: r.left + r.width / 2 - chapterRect.left,
+        y: r.top + r.height / 2 - chapterRect.top,
+      };
+    });
+
+    // Curva a zigzag attraverso i punti: una bezier cubica per tratto, con
+    // i punti di controllo a un quarto/tre quarti dell'altezza (non a metà)
+    // — la linea resta dritta più a lungo vicino a ogni tappa, poi svolta
+    // più decisa verso la successiva: è questo lo scarto che crea lo zigzag.
+    var d = "M " + points[0].x + " " + points[0].y;
+    for (var i = 1; i < points.length; i++) {
+      var p0 = points[i - 1];
+      var p1 = points[i];
+      var yA = p0.y + (p1.y - p0.y) * 0.25;
+      var yB = p0.y + (p1.y - p0.y) * 0.75;
+      d += " C " + p0.x + " " + yA + ", " + p1.x + " " + yB + ", " + p1.x + " " + p1.y;
+    }
+
+    bgPath.setAttribute("d", d);
+    fillPath.setAttribute("d", d);
+
+    var length = fillPath.getTotalLength();
+    fillPath.style.strokeDasharray = length + " " + length;
+    fillPath.style.strokeDashoffset = String(length);
+  }
+
+  function setupChapterScroll(chapter) {
+    var plane = chapter.querySelector(".timeline__plane");
+    var fillPath = chapter.querySelector(".timeline__chapter-line-fill");
+    if (!plane || !fillPath) return;
 
     if (prefersReducedMotion || !hasGsap || typeof ScrollTrigger === "undefined") {
-      if (spineFill) spineFill.style.height = "100%";
+      var length = fillPath.getTotalLength();
+      fillPath.style.strokeDashoffset = "0"; // curva completamente disegnata
       plane.style.display = "none";
       return;
     }
 
     ScrollTrigger.create({
-      trigger: path,
+      trigger: chapter,
       start: "top center",
       end: "bottom center",
       scrub: 0.5,
       onUpdate: function (self) {
         var progress = self.progress;
-        var travel = Math.max(path.offsetHeight - PLANE_SIZE, 0);
-        var y = progress * travel;
-        var sway = Math.sin(progress * Math.PI * 6) * 14;
-        var rot = Math.cos(progress * Math.PI * 6) * 10;
-        plane.style.setProperty("--plane-y", y + "px");
-        plane.style.setProperty("--plane-x", sway + "px");
-        plane.style.setProperty("--plane-rot", rot + "deg");
-        if (spineFill) spineFill.style.height = progress * 100 + "%";
-      },
-    });
+        var len = fillPath.getTotalLength();
+        if (!len) return;
+        fillPath.style.strokeDashoffset = String(len * (1 - progress));
 
-    // L'altezza della timeline dipende dalle immagini/video: ricalcoliamo
-    // quando ognuno di questi ha finito di caricarsi.
-    path.querySelectorAll("img").forEach(function (img) {
-      if (!img.complete) {
-        img.addEventListener(
-          "load",
-          function () {
-            if (hasGsap && typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
-          },
-          { once: true }
-        );
-      }
+        var at = len * progress;
+        var point = fillPath.getPointAtLength(at);
+        var ahead = fillPath.getPointAtLength(Math.min(len, at + 1));
+        var angleDeg = Math.atan2(ahead.y - point.y, ahead.x - point.x) * (180 / Math.PI);
+
+        plane.style.setProperty("--plane-x", point.x + "px");
+        plane.style.setProperty("--plane-y", point.y + "px");
+        plane.style.setProperty("--plane-rot", angleDeg - 90 + "deg");
+
+        // Dissolvenza in entrata/uscita: un "cambio di pagina" verso il
+        // capitolo successivo (o verso un momento a schermo intero),
+        // non un taglio netto.
+        var fade = Math.min(progress / 0.08, (1 - progress) / 0.08, 1);
+        plane.style.setProperty("--plane-opacity", String(Math.max(fade, 0)));
+      },
     });
   }
 
-  if (timelineExists) setupTimelineScroll();
+  function rebuildAllChapters() {
+    timelineChapters.forEach(rebuildChapterPath);
+    if (hasGsap && typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
+  }
+
+  if (timelineChapters.length) {
+    timelineChapters.forEach(function (chapter) {
+      rebuildChapterPath(chapter);
+      setupChapterScroll(chapter);
+    });
+
+    // Il layout dipende da font e immagini/video ancora da caricare:
+    // ricalcoliamo la curva quando arrivano, e a ogni resize/rotazione.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(rebuildAllChapters).catch(function () {});
+    }
+    document.querySelectorAll("#timeline-sequence img").forEach(function (img) {
+      if (!img.complete) img.addEventListener("load", debounce(rebuildAllChapters, 120), { once: true });
+    });
+    document.querySelectorAll("#timeline-sequence video").forEach(function (video) {
+      video.addEventListener("loadedmetadata", debounce(rebuildAllChapters, 120), { once: true });
+    });
+    window.addEventListener("resize", debounce(rebuildAllChapters, 150));
+    window.addEventListener("orientationchange", function () {
+      setTimeout(rebuildAllChapters, 300);
+    });
+  }
 
   function playHeroIntro() {
     if (!hasGsap) return;

@@ -85,17 +85,10 @@
       <p class="eyebrow" data-reveal>La nostra storia</p>
       <h2 class="timeline__heading" data-reveal>Da dove siamo partiti.</h2>
     </div>
-    <div class="timeline__path" id="timeline-path">
-      <div class="timeline__spine" aria-hidden="true"></div>
-      <div class="timeline__spine-fill" id="timeline-spine-fill" aria-hidden="true"></div>
-      <div class="timeline__plane" id="timeline-plane" aria-hidden="true">
-        <svg class="timeline__plane-icon" viewBox="0 0 64 64">
-          <path d="M32 58 L58 8 L32 20 L6 8 Z" fill="var(--white-warm)" stroke="var(--terracotta-deep)" stroke-width="2" stroke-linejoin="round"/>
-          <path d="M32 58 L32 20 L6 8 Z" fill="var(--cream-deep)"/>
-        </svg>
-      </div>
-      <div class="timeline__nodes" id="timeline-nodes"></div>
-    </div>
+    <!-- Popolato da main.js a partire da config.timeline: capitoli a zigzag
+         (con la loro linea di volo + aeroplanino) alternati a momenti a
+         schermo intero. -->
+    <div class="timeline__sequence" id="timeline-sequence"></div>
   </section>
 
   <!-- IL CUORE: prima del regalo, quello che conta davvero -->
