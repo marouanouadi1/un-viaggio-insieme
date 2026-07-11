@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tanti auguri — un viaggio ci aspetta</title>
-<meta name="description" content="Un regalo di compleanno: un weekend insieme, tutto da organizzare.">
+<title>Buon compleanno, Iman — un weekend ci aspetta</title>
+<meta name="description" content="Un regalo per Iman: un weekend, noi tre, tutto ancora da scrivere.">
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%23c96f5c'/%3E%3Crect x='9' y='21' width='30' height='19' rx='2' stroke='%23fffaf3' stroke-width='2.5' fill='none'/%3E%3Cpath d='M9 27.5h30' stroke='%23fffaf3' stroke-width='2.5'/%3E%3Cpath d='M24 21v19' stroke='%23fffaf3' stroke-width='2.5'/%3E%3Cpath d='M24 21c-2-5.5-5.5-8-8-6.3s0 6.3 8 6.3Z' stroke='%23fffaf3' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cpath d='M24 21c2-5.5 5.5-8 8-6.3s0 6.3-8 6.3Z' stroke='%23fffaf3' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%23c96f5c'/%3E%3Crect x='11' y='22' width='26' height='17' rx='2' fill='%23fffaf3'/%3E%3Crect x='22.5' y='22' width='3' height='17' fill='%23c96f5c'/%3E%3Crect x='9' y='17' width='30' height='6' rx='2' fill='%23fffaf3'/%3E%3Crect x='22.5' y='17' width='3' height='6' fill='%23c96f5c'/%3E%3Cpath d='M24 17c-1-6-6-9-10-7' stroke='%23c96f5c' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cpath d='M24 17c1-6 6-9 10-7' stroke='%23c96f5c' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preload" href="./assets/fonts/fraunces-semibold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./assets/fonts/inter-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./assets/fonts/anton-regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -22,27 +22,34 @@
     <h1 class="curtain__title">Tocca per aprire<br>il tuo regalo</h1>
 
     <button id="curtain-btn" class="giftbox" type="button" aria-label="Apri il regalo">
-      <svg viewBox="0 0 200 170" class="giftbox__svg" aria-hidden="true">
-        <ellipse cx="100" cy="152" rx="78" ry="10" fill="#000" opacity="0.18"/>
-        <rect x="35" y="82" width="130" height="72" rx="6" fill="var(--white-warm)"/>
-        <rect x="92" y="82" width="16" height="72" fill="var(--terracotta)"/>
+      <svg viewBox="0 0 200 180" class="giftbox__svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="box-shade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.55"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="100" cy="160" rx="70" ry="8" fill="#000" opacity="0.16"/>
+        <rect x="42" y="88" width="116" height="66" rx="4" fill="var(--white-warm)"/>
+        <rect x="42" y="88" width="116" height="66" rx="4" fill="url(#box-shade)"/>
+        <rect x="96" y="88" width="8" height="66" fill="var(--terracotta)"/>
         <g id="giftbox-lid" class="giftbox__lid">
-          <rect x="26" y="64" width="148" height="24" rx="6" fill="var(--white-warm)"/>
-          <rect x="92" y="64" width="16" height="24" fill="var(--terracotta)"/>
-          <path d="M100 64c-4-20-24-34-36-27-11 6-6 22 12 27z" fill="var(--terracotta)"/>
-          <path d="M100 64c4-20 24-34 36-27 11 6 6 22-12 27z" fill="var(--terracotta)"/>
-          <circle cx="100" cy="61" r="10" fill="var(--terracotta-deep)"/>
+          <rect x="34" y="72" width="132" height="18" rx="4" fill="var(--white-warm)"/>
+          <rect x="96" y="72" width="8" height="18" fill="var(--terracotta)"/>
+          <path d="M100 72c-2-14-14-24-24-20-8 3-7 14 4 18 6 2 14 2 20 2z" fill="none" stroke="var(--terracotta)" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M100 72c2-14 14-24 24-20 8 3 7 14-4 18-6 2-14 2-20 2z" fill="none" stroke="var(--terracotta)" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="100" cy="72" r="4.5" fill="var(--terracotta-deep)"/>
         </g>
       </svg>
     </button>
 
-    <button id="sound-toggle" class="sound-toggle" type="button" aria-pressed="true" aria-label="Disattiva il suono">
-      <span class="sound-toggle__dot" aria-hidden="true"></span>
-      <span id="sound-toggle-label">suono on</span>
-    </button>
+    <p class="curtain__hint">🔊 Alza il volume</p>
   </div>
 </div>
 <noscript><style>#curtain{display:none !important;}</style></noscript>
+
+<!-- Musica di sottofondo: src impostato via JS da config.js (music.src) -->
+<audio id="bg-music" loop preload="none"></audio>
 
 <main id="content">
 
@@ -55,11 +62,12 @@
         <span class="hero__title-line hero__title-name" data-reveal><span data-cfg="name">NOME</span></span>
       </h1>
       <p class="hero__subtitle" data-reveal data-cfg="hero-subtitle">Oggi si festeggia te.</p>
+      <p class="hero__teaser" data-reveal>Ma prima, vogliamo raccontarti una storia.</p>
       <div class="scroll-cue" data-reveal aria-hidden="true"><span class="scroll-cue__line"></span>scorri</div>
     </div>
   </section>
 
-  <!-- INTERMEZZO SCHERZOSO SULL'ETÀ -->
+  <!-- INTERMEZZO SCHERZOSO SULL'ETÀ (breve, prima del racconto) -->
   <section class="section tease" id="tease-section">
     <div class="section__inner">
       <p class="eyebrow" data-reveal data-cfg="tease-eyebrow"></p>
@@ -67,15 +75,35 @@
     </div>
   </section>
 
-  <!-- MESSAGGIO -->
-  <section class="section message">
+  <!-- ============================================================
+       LA NOSTRA STORIA: timeline verticale scorrevole, con un
+       aeroplanino di carta che scende lungo la linea di volo
+       mentre si scrolla. Le tappe si popolano da config.timeline.
+       ============================================================ -->
+  <section class="timeline-section" id="timeline-section">
     <div class="section__inner">
-      <p class="eyebrow" data-reveal>Prima di tutto</p>
-      <p class="message__lines">
-        <span class="line" data-reveal>Volevo scriverti qualcosa</span>
-        <span class="line" data-reveal>di più di un semplice messaggio.</span>
-        <span class="line line--soft" data-reveal>Qualcosa che restasse.</span>
-      </p>
+      <p class="eyebrow" data-reveal>La nostra storia</p>
+      <h2 class="timeline__heading" data-reveal>Da dove siamo partiti.</h2>
+    </div>
+    <div class="timeline__path" id="timeline-path">
+      <div class="timeline__spine" aria-hidden="true"></div>
+      <div class="timeline__spine-fill" id="timeline-spine-fill" aria-hidden="true"></div>
+      <div class="timeline__plane" id="timeline-plane" aria-hidden="true">
+        <svg class="timeline__plane-icon" viewBox="0 0 64 64">
+          <path d="M32 58 L58 8 L32 20 L6 8 Z" fill="var(--white-warm)" stroke="var(--terracotta-deep)" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M32 58 L32 20 L6 8 Z" fill="var(--cream-deep)"/>
+        </svg>
+      </div>
+      <div class="timeline__nodes" id="timeline-nodes"></div>
+    </div>
+  </section>
+
+  <!-- IL CUORE: prima del regalo, quello che conta davvero -->
+  <section class="section heart">
+    <div class="section__inner">
+      <p class="eyebrow eyebrow--light" data-reveal>Prima di tutto</p>
+      <h2 class="heart__title" data-reveal>Ti vogliamo bene.<br><em>Sempre.</em></h2>
+      <p class="heart__subtitle" data-reveal>E siamo fieri di ogni passo che hai fatto per arrivare fin qui.</p>
       <p class="message__note hidden" id="personal-note" data-reveal></p>
     </div>
   </section>
@@ -85,68 +113,15 @@
     <div class="section__inner">
       <p class="eyebrow eyebrow--light" data-reveal>Ma non è tutto</p>
       <h2 class="gift__title" data-reveal>
-        Il mio regalo<br>è un weekend.<br><em>Insieme.</em>
+        Il nostro regalo?<br>Un weekend.<br><em>Noi tre. Insieme.</em>
       </h2>
     </div>
   </section>
 
-  <!-- ============================================================
-       ATTO III — IL VIAGGIO: sequenza cinematica a schermo intero.
-       Ogni .stack-slide resta "incollata" (sticky) mentre si scrolla
-       la sua altezza extra, poi viene coperta dalla slide successiva.
-       ============================================================ -->
-  <div class="journey" id="journey">
-
-    <section class="stack-slide" data-stack>
-      <div class="stack-slide__stage">
-        <p class="stack-slide__cap stack-slide__cap--top">(Capitolo 01)</p>
-        <h2 class="stack-slide__word">Partenza</h2>
-        <p class="stack-slide__cap stack-slide__cap--bottom">il regalo ha una data ancora da scrivere. tutto il resto lo scriviamo insieme.</p>
-      </div>
-    </section>
-
-    <section class="stack-slide" data-stack>
-      <div class="stack-slide__stage">
-        <p class="stack-slide__cap stack-slide__cap--top">Quando</p>
-        <h2 class="stack-slide__word">???</h2>
-        <p class="stack-slide__cap stack-slide__cap--bottom">(lo decidete voi due, con calma)</p>
-      </div>
-    </section>
-
-    <section class="stack-slide" data-stack>
-      <div class="stack-slide__stage">
-        <p class="stack-slide__cap stack-slide__cap--top">Dove</p>
-        <h2 class="stack-slide__word">???</h2>
-        <p class="stack-slide__cap stack-slide__cap--bottom">(sceglie lei. punto.)</p>
-      </div>
-    </section>
-
-    <section class="stack-slide" data-stack>
-      <div class="stack-slide__stage">
-        <p class="stack-slide__cap stack-slide__cap--top">L'unica cosa certa</p>
-        <h2 class="stack-slide__word stack-slide__word--accent">Un weekend.<br>Insieme.</h2>
-        <p class="stack-slide__cap stack-slide__cap--bottom">(01) partenza · destinazione: da definire</p>
-      </div>
-    </section>
-
-    <section class="stack-slide stack-slide--carousel" data-stack>
-      <div class="stack-slide__stage stack-slide__stage--carousel">
-        <p class="stack-slide__cap stack-slide__cap--top">(Capitolo 02) i ricordi (e quelli che verranno)</p>
-        <div class="carousel" id="carousel">
-          <div class="carousel__track" id="carousel-track" data-lenis-prevent></div>
-          <button class="carousel__arrow carousel__arrow--prev" id="carousel-prev" type="button" aria-label="Foto precedente">‹</button>
-          <button class="carousel__arrow carousel__arrow--next" id="carousel-next" type="button" aria-label="Foto successiva">›</button>
-          <div class="carousel__counter" id="carousel-counter" aria-hidden="true"></div>
-        </div>
-      </div>
-    </section>
-
-  </div>
-
-  <!-- PROSSIMI PASSI -->
+  <!-- COME FUNZIONA -->
   <section class="section steps">
     <div class="section__inner section__inner--wide">
-      <p class="eyebrow" data-reveal>I prossimi passi</p>
+      <p class="eyebrow" data-reveal>Come funziona</p>
       <h2 class="steps__title" data-reveal>Tu devi fare una sola cosa.</h2>
       <div class="steps__grid">
         <div class="step" data-reveal>
@@ -160,15 +135,15 @@
           <span class="step__icon" aria-hidden="true">
             <svg viewBox="0 0 48 48" fill="none"><rect x="8" y="10" width="32" height="28" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 18h32M16 6v8M32 6v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           </span>
-          <h3>Fissiamo la data</h3>
-          <p>Al resto pensiamo insieme, con calma, appena hai deciso.</p>
+          <h3>Al resto pensiamo noi</h3>
+          <p>Biglietti, prenotazioni, dettagli: ci pensiamo noi due, con calma.</p>
         </div>
         <div class="step" data-reveal>
           <span class="step__icon" aria-hidden="true">
             <svg viewBox="0 0 48 48" fill="none"><rect x="10" y="16" width="28" height="22" rx="3" stroke="currentColor" stroke-width="2"/><path d="M18 16v-4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4" stroke="currentColor" stroke-width="2"/></svg>
           </span>
-          <h3>Si parte</h3>
-          <p>Biglietti, dettagli, valigie: il resto lo organizziamo io e te.</p>
+          <h3>Fai le valigie e parti</h3>
+          <p>A te resta una cosa sola: preparare i bagagli.</p>
         </div>
       </div>
     </div>

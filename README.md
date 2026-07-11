@@ -1,13 +1,14 @@
 # Un viaggio insieme 🎁
 
-Sito regalo di compleanno — single page, mobile-first, super animato.
+Sito regalo di compleanno per Iman — single page, mobile-first, super animato.
 Nessun build, nessuna dipendenza esterna: apri `index.html` e funziona.
 
-L'esperienza: un sipario con un pacco regalo da aprire (con tanto di suono
-e coriandoli), poi auguri, una presa in giro sull'età, un messaggio sincero,
-il reveal del vero regalo (un weekend insieme) e infine una sequenza
-cinematica a schermo intero — in stile "capitoli" — su questo viaggio ancora
-tutto da decidere, con un carosello di foto/video. Chiude con la firma.
+L'esperienza: un sipario con un pacco regalo da aprire (con tanto di musica
+e coriandoli), poi gli auguri, una breve battuta sull'età, il racconto della
+nostra storia — una timeline verticale scorrevole con un aeroplanino di carta
+che scende lungo la linea del percorso — un messaggio dal cuore, il reveal
+del vero regalo (un weekend insieme, noi tre) e infine come funziona.
+Chiude con la firma.
 
 ## Come personalizzare i testi
 
@@ -15,45 +16,65 @@ Modifica **solo** `config.js`:
 
 ```js
 window.CONFIG = {
-  name: "NOME",              // il nome di tua sorella
-  age: null,                 // es. 27, oppure null per non mostrarlo
-  signature: "Tuo fratello", // come vuoi firmarti
-  personalNote: "",          // un ricordo speciale (facoltativo)
-  teaseEyebrow: "...",       // etichetta sopra le battute sull'età
-  teaseLines: [ ... ],       // le battute stesse (array di frasi)
-  moments: [ ... ],          // foto/video del carosello, vedi sotto
+  name: "Iman",             // il nome di tua sorella
+  age: 27,                  // oppure null per non mostrarlo
+  signature: "I tuoi fratelli", // come vi firmate
+  personalNote: "",         // un ricordo speciale (facoltativo)
+  teaseEyebrow: "...",      // etichetta sopra la battuta sull'età
+  teaseLines: [ ... ],      // la battuta stessa (array di frasi)
+  music: { ... },           // traccia audio, vedi sotto
+  timeline: [ ... ],        // le tappe della vostra storia, vedi sotto
 };
 ```
 
 Ricarica la pagina (o ri-deploya) per vedere le modifiche.
 
-## Come aggiungere foto e video (carosello)
+## La musica
 
-Il carosello (nel capitolo "i ricordi", dentro la sequenza scura del viaggio)
-si popola dall'array `moments` in `config.js`:
+Al tap sul pacco regalo parte la musica di sottofondo, in loop, per tutta
+la visita — **non c'è un pulsante per disattivarla**, solo l'invito ad
+alzare il volume prima di aprire il regalo.
 
 ```js
-moments: [
-  { type: "image", src: "assets/img/foto-1.jpg", caption: "un nostro ricordo" },
-  { type: "video", src: "assets/video/clip-1.mp4", caption: "quella volta lì" },
+music: {
+  src: "assets/audio/musica.mp3", // il tuo file, dentro assets/audio/
+  volume: 0.55,                   // da 0 a 1
+},
+```
+
+Se lasci `src` vuoto, al suo posto suona una breve melodia festosa generata
+al volo (nessun file da caricare) — utile finché non hai scelto la traccia
+definitiva.
+
+## Come raccontare la vostra storia (timeline)
+
+La sezione centrale "La nostra storia" si popola dall'array `timeline` in
+`config.js`: ogni elemento è una tappa del racconto, con data (facoltativa),
+titolo, testo e foto/video.
+
+```js
+timeline: [
+  {
+    date: "17 luglio 1999",
+    title: "Sei nata tu",
+    text: "Comincia tutto da qui...",
+    media: [{ type: "image", src: "assets/img/foto-1.jpg", caption: "Iman da piccola" }],
+  },
+  // altre tappe...
 ],
 ```
 
 1. Copia le tue foto in `assets/img/` e i tuoi video in `assets/video/`.
-2. Aggiungi/modifica le righe dell'array con i nomi dei tuoi file
-   (`type: "image"` o `"video"`, `caption` facoltativa — stringa vuota per ometterla).
-3. I video vengono riprodotti muti, in loop, solo quando sono la diapositiva attiva.
-4. Ri-deploya (vedi sotto).
+2. Aggiungi/modifica le tappe con i tuoi testi e i nomi dei tuoi file
+   (`type: "image"` o `"video"`, `media` può avere più elementi, `caption`
+   facoltativa — stringa vuota per ometterla).
+3. Le tappe si alternano automaticamente a sinistra/destra della linea
+   (o imposta `side: "left"` / `"right"` per deciderlo tu).
+4. I video vengono riprodotti muti, in loop, solo quando la tappa è visibile.
+5. Ri-deploya (vedi sotto).
 
-Si sfoglia con le frecce, con i puntini/contatore, oppure scorrendo col dito.
-
-## Il suono
-
-Al tap sul pacco regalo parte un piccolo campanellino (generato al volo,
-nessun file audio da caricare). La scelta se tenerlo attivo o no si fa
-**prima di aprire il regalo**, con il pulsante dentro il sipario stesso —
-dato che è un unico suono e non una colonna sonora, non serve un controllo
-visibile per il resto del sito.
+Scrollando, la linea di volo si disegna e un aeroplanino di carta la
+percorre dall'alto verso il basso.
 
 ## Come vedere il sito in locale
 
@@ -85,13 +106,14 @@ L'URL del sito è:
 
 ```
 index.html      struttura della pagina (sezioni dell'esperienza)
-styles.css      stile: colori, font, layout responsive, sequenza cinematica
+styles.css      stile: colori, font, layout responsive, timeline
 main.js         animazioni (GSAP, ScrollTrigger, Lenis, confetti, Web Audio)
-config.js       👉 unico file da modificare per testi, battute e carosello
+config.js       👉 unico file da modificare per testi, musica e timeline
 assets/lib/     librerie vendored (nessuna CDN)
 assets/fonts/   font self-hosted (Fraunces, Inter, Anton)
-assets/img/     immagini/placeholder del carosello
-assets/video/   qui vanno i tuoi video per il carosello
+assets/audio/   qui va la tua traccia musicale
+assets/img/     immagini/placeholder della timeline
+assets/video/   qui vanno i tuoi video per la timeline
 ```
 
 ## Nota

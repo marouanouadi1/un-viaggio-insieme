@@ -12,7 +12,7 @@
     el.textContent = displayName;
   });
   document.querySelectorAll('[data-cfg="signature"]').forEach(function (el) {
-    el.textContent = (cfg.signature && cfg.signature.trim()) || "Tuo fratello";
+    el.textContent = (cfg.signature && cfg.signature.trim()) || "I tuoi fratelli";
   });
 
   var subtitleEl = document.querySelector('[data-cfg="hero-subtitle"]');
@@ -48,111 +48,153 @@
   }
 
   /* --------------------------------------------------------------------
-   * 2) Carosello foto/video (Atto III, capitolo 02)
+   * 2) La nostra storia: timeline verticale (config.timeline)
+   * Crea le tappe nel DOM. La meccanica di scroll (linea + aeroplanino)
+   * viene agganciata più avanti, dopo che GSAP/ScrollTrigger sono pronti.
    * ------------------------------------------------------------------ */
-  var carouselSlides = [];
-  var carouselTrack = document.getElementById("carousel-track");
-  var carouselCounter = document.getElementById("carousel-counter");
+  var timelineVideos = [];
 
-  function initCarousel() {
-    var moments = Array.isArray(cfg.moments) ? cfg.moments.filter(Boolean) : [];
-    if (!carouselTrack || !moments.length) {
-      var carouselSection = document.querySelector(".stack-slide--carousel");
-      if (carouselSection) carouselSection.remove();
-      return;
+  function buildTimelineNodes() {
+    var stops = Array.isArray(cfg.timeline) ? cfg.timeline.filter(Boolean) : [];
+    var section = document.getElementById("timeline-section");
+    var nodesEl = document.getElementById("timeline-nodes");
+    if (!nodesEl || !stops.length) {
+      if (section) section.remove();
+      return false;
     }
 
-    moments.forEach(function (m) {
-      var slide = document.createElement("div");
-      slide.className = "carousel__slide";
+    stops.forEach(function (stop, i) {
+      var side = stop.side === "left" || stop.side === "right" ? stop.side : (i % 2 === 0 ? "left" : "right");
 
-      var media;
-      if (m.type === "video") {
-        media = document.createElement("video");
-        media.src = m.src;
-        media.muted = true;
-        media.loop = true;
-        media.playsInline = true;
-        media.setAttribute("preload", "metadata");
-      } else {
-        media = document.createElement("img");
-        media.src = m.src;
-        media.alt = m.caption || "";
-        media.loading = "lazy";
-      }
-      slide.appendChild(media);
+      var node = document.createElement("article");
+      node.className = "timeline__node timeline__node--" + side;
+      node.setAttribute("data-reveal", "");
 
-      if (m.caption) {
-        var cap = document.createElement("p");
-        cap.className = "carousel__caption";
-        cap.textContent = m.caption;
-        slide.appendChild(cap);
+      var dot = document.createElement("span");
+      dot.className = "timeline__dot";
+      dot.setAttribute("aria-hidden", "true");
+      node.appendChild(dot);
+
+      var card = document.createElement("div");
+      card.className = "timeline__card";
+
+      if (stop.date) {
+        var dateEl = document.createElement("p");
+        dateEl.className = "timeline__date";
+        dateEl.textContent = stop.date;
+        card.appendChild(dateEl);
       }
-      carouselTrack.appendChild(slide);
+      if (stop.title) {
+        var titleEl = document.createElement("h3");
+        titleEl.className = "timeline__title-text";
+        titleEl.textContent = stop.title;
+        card.appendChild(titleEl);
+      }
+      if (stop.text) {
+        var textEl = document.createElement("p");
+        textEl.className = "timeline__text";
+        textEl.textContent = stop.text;
+        card.appendChild(textEl);
+      }
+
+      var media = Array.isArray(stop.media) ? stop.media.filter(Boolean) : [];
+      media.forEach(function (m) {
+        var mediaWrap = document.createElement("div");
+        mediaWrap.className = "timeline__media";
+
+        var el;
+        if (m.type === "video") {
+          el = document.createElement("video");
+          el.src = m.src;
+          el.muted = true;
+          el.loop = true;
+          el.playsInline = true;
+          el.setAttribute("preload", "metadata");
+          timelineVideos.push(el);
+        } else {
+          el = document.createElement("img");
+          el.src = m.src;
+          el.alt = m.caption || stop.title || "";
+          el.loading = "lazy";
+        }
+        mediaWrap.appendChild(el);
+
+        if (m.caption) {
+          var cap = document.createElement("p");
+          cap.className = "timeline__caption";
+          cap.textContent = m.caption;
+          mediaWrap.appendChild(cap);
+        }
+        card.appendChild(mediaWrap);
+      });
+
+      node.appendChild(card);
+      nodesEl.appendChild(node);
     });
 
-    carouselSlides = Array.prototype.slice.call(carouselTrack.children);
-
-    function updateCarousel() {
-      if (!carouselTrack.clientWidth) return;
-      var idx = Math.round(carouselTrack.scrollLeft / carouselTrack.clientWidth);
-      idx = Math.max(0, Math.min(carouselSlides.length - 1, idx));
-      if (carouselCounter) {
-        carouselCounter.textContent = String(idx + 1).padStart(2, "0") + " / " + String(carouselSlides.length).padStart(2, "0");
+    // Video: partono solo quando la tappa è visibile, altrimenti in pausa.
+    if (timelineVideos.length) {
+      if ("IntersectionObserver" in window) {
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.play().catch(function () {});
+              } else {
+                entry.target.pause();
+              }
+            });
+          },
+          { threshold: 0.35 }
+        );
+        timelineVideos.forEach(function (v) { io.observe(v); });
+      } else {
+        timelineVideos.forEach(function (v) { v.play().catch(function () {}); });
       }
-      carouselSlides.forEach(function (s, i) {
-        var video = s.querySelector("video");
-        if (!video) return;
-        if (i === idx) {
-          video.play().catch(function () {});
-        } else {
-          video.pause();
-        }
-      });
     }
 
-    var scrollTimer = null;
-    carouselTrack.addEventListener(
-      "scroll",
-      function () {
-        window.clearTimeout(scrollTimer);
-        scrollTimer = window.setTimeout(updateCarousel, 80);
-      },
-      { passive: true }
-    );
-
-    var prevBtn = document.getElementById("carousel-prev");
-    var nextBtn = document.getElementById("carousel-next");
-    if (prevBtn) {
-      prevBtn.addEventListener("click", function () {
-        carouselTrack.scrollBy({ left: -carouselTrack.clientWidth, behavior: "smooth" });
-      });
-    }
-    if (nextBtn) {
-      nextBtn.addEventListener("click", function () {
-        carouselTrack.scrollBy({ left: carouselTrack.clientWidth, behavior: "smooth" });
-      });
-    }
-
-    updateCarousel();
+    return true;
   }
-  initCarousel();
+
+  var timelineExists = buildTimelineNodes();
 
   /* --------------------------------------------------------------------
-   * 3) Suono: campanellino sintetizzato (Web Audio, nessun file da caricare)
+   * 3) Audio: musica di sottofondo (file da config.js) con fallback
+   * su una breve melodia generata al volo, se non è stato indicato un file.
+   * L'audio è sempre attivo: non c'è un controllo per disattivarlo.
    * ------------------------------------------------------------------ */
-  var SOUND_KEY = "un-viaggio-insieme:suono";
-  var soundEnabled = true;
-  try {
-    var storedSound = window.localStorage.getItem(SOUND_KEY);
-    if (storedSound !== null) soundEnabled = storedSound === "on";
-  } catch (e) {
-    /* localStorage non disponibile: si resta sul default (on) */
+  var bgMusic = document.getElementById("bg-music");
+
+  function startBackgroundMusic() {
+    if (!bgMusic || !cfg.music || !cfg.music.src) return false;
+    try {
+      bgMusic.src = cfg.music.src;
+      bgMusic.loop = true;
+      bgMusic.volume = typeof cfg.music.volume === "number" ? cfg.music.volume : 0.55;
+      // Se il percorso in config.js è sbagliato o il file non esiste, l'audio
+      // non parte in silenzio: suoniamo comunque la melodia di riserva.
+      bgMusic.addEventListener(
+        "error",
+        function onError() {
+          bgMusic.removeEventListener("error", onError);
+          playChime();
+        },
+        { once: true }
+      );
+      var playPromise = bgMusic.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(function () {
+          /* autoplay bloccato dal browser: non deve mai impedire l'apertura del regalo */
+        });
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   var audioCtx = null;
   function playChime() {
-    if (!soundEnabled || prefersReducedMotion) return;
     try {
       var Ctx = window.AudioContext || window.webkitAudioContext;
       if (!Ctx) return;
@@ -160,46 +202,35 @@
       if (audioCtx.state === "suspended") audioCtx.resume();
 
       var now = audioCtx.currentTime;
-      var notes = [523.25, 659.25, 783.99, 1046.5]; // do-mi-sol-do, arpeggio luminoso
-      notes.forEach(function (freq, i) {
+
+      function note(freq, start, dur, type, peak) {
         var osc = audioCtx.createOscillator();
         var gain = audioCtx.createGain();
-        osc.type = "triangle";
+        osc.type = type || "triangle";
         osc.frequency.value = freq;
-        var start = now + i * 0.09;
-        gain.gain.setValueAtTime(0, start);
-        gain.gain.linearRampToValueAtTime(0.16, start + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.5);
+        gain.gain.setValueAtTime(0, now + start);
+        gain.gain.linearRampToValueAtTime(peak || 0.15, now + start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start(start);
-        osc.stop(start + 0.55);
+        osc.start(now + start);
+        osc.stop(now + start + dur + 0.05);
+      }
+
+      // Motivo festoso: arpeggio ascendente (do-mi-sol-do) seguito da un
+      // accordo maggiore a più voci che chiude in modo luminoso, più una
+      // piccola scintilla acuta finale.
+      var arp = [523.25, 659.25, 783.99, 1046.5];
+      arp.forEach(function (freq, i) {
+        note(freq, i * 0.08, 0.35, "triangle", 0.14);
       });
+      [783.99, 987.77, 1174.66].forEach(function (freq) {
+        note(freq, 0.34, 0.85, "sine", 0.09);
+      });
+      note(2093, 0.42, 0.4, "triangle", 0.06);
     } catch (e) {
       /* il suono e' un plus, non deve mai bloccare l'apertura del regalo */
     }
-  }
-
-  var soundToggle = document.getElementById("sound-toggle");
-  var soundToggleLabel = document.getElementById("sound-toggle-label");
-  function refreshSoundToggleUI() {
-    if (!soundToggle) return;
-    soundToggle.setAttribute("aria-pressed", String(soundEnabled));
-    soundToggle.setAttribute("aria-label", soundEnabled ? "Disattiva il suono" : "Attiva il suono");
-    if (soundToggleLabel) soundToggleLabel.textContent = soundEnabled ? "suono on" : "suono off";
-  }
-  refreshSoundToggleUI();
-  if (soundToggle) {
-    soundToggle.addEventListener("click", function (e) {
-      e.stopPropagation(); // e' dentro #curtain: non deve far partire l'apertura del regalo
-      soundEnabled = !soundEnabled;
-      try {
-        window.localStorage.setItem(SOUND_KEY, soundEnabled ? "on" : "off");
-      } catch (e) {
-        /* nessun salvataggio persistente disponibile, non e' bloccante */
-      }
-      refreshSoundToggleUI();
-    });
   }
 
   /* --------------------------------------------------------------------
@@ -278,49 +309,61 @@
   }
 
   /* --------------------------------------------------------------------
-   * 5) Atto III — sequenza cinematica "sticky-stack"
-   * Ogni .stack-slide resta incollata (CSS position:sticky) mentre si
-   * scrolla la sua altezza extra; qui animiamo solo il CONTENUTO interno
-   * (scala/opacità) in base al progresso di scroll di quella slide.
+   * 5) La nostra storia: meccanica di scroll della timeline.
+   * Un unico ScrollTrigger scrubbato lega, all'avanzare dello scroll:
+   * - il "disegno" della linea di volo (altezza della spine-fill 0% → 100%)
+   * - la discesa dell'aeroplanino lungo la spine, con una leggera
+   *   oscillazione orizzontale e un piccolo "bank" rotatorio, per dare
+   *   l'idea del volo.
    * ------------------------------------------------------------------ */
-  if (hasGsap && typeof ScrollTrigger !== "undefined") {
-    var stackSlides = gsap.utils.toArray(".stack-slide[data-stack]");
-    stackSlides.forEach(function (slide) {
-      var word = slide.querySelector(".stack-slide__word");
-      var caps = gsap.utils.toArray(slide.querySelectorAll(".stack-slide__cap"));
-      var animatedEls = (word ? [word] : []).concat(caps);
-      if (!animatedEls.length) return;
+  function setupTimelineScroll() {
+    var path = document.getElementById("timeline-path");
+    var plane = document.getElementById("timeline-plane");
+    var spineFill = document.getElementById("timeline-spine-fill");
+    if (!path || !plane) return;
 
-      if (prefersReducedMotion) {
-        gsap.set(animatedEls, { opacity: 1, scale: 1, y: 0 });
-        return;
+    var PLANE_SIZE = 38; // deve combaciare con la larghezza in styles.css
+
+    if (prefersReducedMotion || !hasGsap || typeof ScrollTrigger === "undefined") {
+      if (spineFill) spineFill.style.height = "100%";
+      plane.style.display = "none";
+      return;
+    }
+
+    ScrollTrigger.create({
+      trigger: path,
+      start: "top center",
+      end: "bottom center",
+      scrub: 0.5,
+      onUpdate: function (self) {
+        var progress = self.progress;
+        var travel = Math.max(path.offsetHeight - PLANE_SIZE, 0);
+        var y = progress * travel;
+        var sway = Math.sin(progress * Math.PI * 6) * 14;
+        var rot = Math.cos(progress * Math.PI * 6) * 10;
+        plane.style.setProperty("--plane-y", y + "px");
+        plane.style.setProperty("--plane-x", sway + "px");
+        plane.style.setProperty("--plane-rot", rot + "deg");
+        if (spineFill) spineFill.style.height = progress * 100 + "%";
+      },
+    });
+
+    // L'altezza della timeline dipende dalle immagini/video: ricalcoliamo
+    // quando ognuno di questi ha finito di caricarsi.
+    path.querySelectorAll("img").forEach(function (img) {
+      if (!img.complete) {
+        img.addEventListener(
+          "load",
+          function () {
+            if (hasGsap && typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
+          },
+          { once: true }
+        );
       }
-
-      gsap.set(caps, { opacity: 0, y: 10 });
-      if (word) gsap.set(word, { opacity: 0, scale: 0.72 });
-
-      var tl = gsap.timeline({ defaults: { ease: "power2.out" } });
-      if (word) tl.to(word, { opacity: 1, scale: 1, duration: 0.3 }, 0);
-      tl.to(caps, { opacity: 1, y: 0, duration: 0.2, stagger: 0.05 }, 0.05);
-      tl.to({}, { duration: 0.35 }); // dwell: resta leggibile
-      if (word) tl.to(word, { opacity: 0.85, scale: 1.05, duration: 0.25, ease: "power1.in" });
-      tl.to(caps, { opacity: 0, duration: 0.2 }, "<");
-
-      // Il pannello resta "incollato" (CSS sticky) solo per la prima metà
-      // dell'altezza del wrapper (l'altra metà è lo scroll naturale che lo
-      // scopre): la scrub-animation deve coprire esattamente quella finestra,
-      // altrimenti il contenuto smette di essere leggibile prima che l'exit finisca.
-      ScrollTrigger.create({
-        trigger: slide,
-        start: "top top",
-        end: function () {
-          return "+=" + slide.offsetHeight / 2;
-        },
-        scrub: 0.4,
-        animation: tl,
-      });
     });
   }
+
+  if (timelineExists) setupTimelineScroll();
 
   function playHeroIntro() {
     if (!hasGsap) return;
@@ -349,7 +392,10 @@
     dismissed = true;
     if (curtainBtn) curtainBtn.disabled = true;
 
-    playChime();
+    // Musica sempre attiva: se c'è un file configurato parte quella,
+    // altrimenti suona la melodia di riserva generata al volo.
+    var musicStarted = startBackgroundMusic();
+    if (!musicStarted) playChime();
 
     if (!prefersReducedMotion && typeof confetti !== "undefined") {
       confetti({
