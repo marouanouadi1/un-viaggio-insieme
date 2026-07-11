@@ -1,0 +1,438 @@
+/* ==========================================================================
+   Font self-hosted (nessuna CDN)
+   ========================================================================== */
+@font-face {
+  font-family: "Fraunces";
+  src: url("./assets/fonts/fraunces-regular.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("./assets/fonts/fraunces-semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("./assets/fonts/fraunces-italic.woff2") format("woff2");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("./assets/fonts/inter-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("./assets/fonts/inter-medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("./assets/fonts/inter-semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==========================================================================
+   Reset + variabili
+   ========================================================================== */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+img { max-width: 100%; display: block; }
+
+:root {
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --cream:        #fbf3e8;
+  --cream-deep:   #f3e2cc;
+  --ink:          #2c2117;
+  --ink-soft:     #5c4b3d;
+  --terracotta:   #c96f5c;
+  --terracotta-deep: #8c4a3d;
+  --rose:         #e2946a;
+  --gold:         #c9a15a;
+  --white-warm:   #fffaf3;
+
+  --gradient-warm: linear-gradient(160deg, #f6e3c8 0%, #e8a87c 55%, #c96f5c 100%);
+  --gradient-deep: linear-gradient(165deg, #8c4a3d 0%, #6f3a30 60%, #4a2a22 100%);
+
+  --container: 720px;
+  --container-wide: 1000px;
+  --section-pad-y: clamp(4.5rem, 12vw, 8rem);
+  --section-pad-x: 1.5rem;
+}
+
+html {
+  scroll-behavior: auto; /* lo scroll fluido lo gestisce Lenis via JS */
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.scroll-locked {
+  overflow: hidden;
+  height: 100%;
+}
+
+.hidden { display: none !important; }
+
+/* ==========================================================================
+   Curtain (sipario d'apertura)
+   ========================================================================== */
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: var(--gradient-deep);
+  color: var(--white-warm);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.curtain__glow {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(circle at 50% 40%, rgba(233, 178, 130, 0.35), transparent 60%);
+  pointer-events: none;
+}
+
+.curtain__inner {
+  position: relative;
+  max-width: 420px;
+}
+
+.curtain__eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin: 0 0 0.75rem;
+}
+
+.curtain__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.7rem, 6.5vw, 2.5rem);
+  line-height: 1.2;
+  margin: 0 0 2.25rem;
+}
+
+.curtain__btn {
+  appearance: none;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  animation: curtain-pulse 2.6s ease-in-out infinite;
+  transition: transform 0.2s ease;
+}
+.curtain__btn svg { width: 34px; height: 34px; }
+.curtain__btn:hover { transform: scale(1.05); }
+.curtain__btn:disabled { animation: none; opacity: 0.7; cursor: default; }
+
+@keyframes curtain-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.25); }
+  50% { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(255,255,255,0); }
+}
+
+.curtain__hint {
+  margin: 1.5rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curtain__btn { animation: none; }
+}
+
+/* ==========================================================================
+   Layout generico sezioni
+   ========================================================================== */
+.section {
+  position: relative;
+  padding: var(--section-pad-y) var(--section-pad-x);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section__inner {
+  max-width: var(--container);
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.section__inner--wide { max-width: var(--container-wide); }
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--terracotta-deep);
+  margin: 0 0 1.25rem;
+}
+.eyebrow--light { color: rgba(255, 250, 243, 0.75); }
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+.hero {
+  min-height: 100svh;
+  background: var(--gradient-warm);
+  color: var(--white-warm);
+  text-align: center;
+}
+.hero .eyebrow { color: rgba(255, 250, 243, 0.8); }
+
+.hero__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.4rem, 9vw, 4.5rem);
+  line-height: 1.08;
+  margin: 0 0 1.5rem;
+}
+.hero__title-line { display: block; }
+.hero__title-name { font-style: italic; color: var(--white-warm); }
+
+.hero__subtitle {
+  font-size: clamp(1rem, 2.4vw, 1.25rem);
+  max-width: 32ch;
+  margin: 0 auto;
+  opacity: 0.92;
+}
+
+.scroll-cue {
+  margin-top: 4rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+.scroll-cue__line {
+  width: 1px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.6);
+  animation: scroll-cue-move 1.8s ease-in-out infinite;
+}
+@keyframes scroll-cue-move {
+  0% { transform: scaleY(0.2); transform-origin: top; opacity: 0.4; }
+  50% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+  51% { transform-origin: bottom; }
+  100% { transform: scaleY(0.2); transform-origin: bottom; opacity: 0.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue__line { animation: none; }
+}
+
+/* ==========================================================================
+   Messaggio
+   ========================================================================== */
+.message { background: var(--cream); }
+.message__lines {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4.6vw, 2.4rem);
+  line-height: 1.4;
+  color: var(--ink);
+  margin: 0;
+}
+.message__lines .line { display: block; }
+.message__lines .line--soft { font-style: italic; color: var(--terracotta-deep); }
+
+.message__note {
+  margin-top: 2.5rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+  color: var(--ink-soft);
+  max-width: 42ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ==========================================================================
+   Galleria
+   ========================================================================== */
+.gallery { background: var(--cream-deep); }
+.gallery__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+.gallery__item {
+  margin: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px -20px rgba(44, 33, 23, 0.35);
+}
+.gallery__item img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+.gallery__item figcaption {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  padding: 0.85rem 0.25rem 0;
+  text-align: center;
+  font-style: italic;
+}
+.gallery__item--offset { margin-top: 0; }
+
+@media (min-width: 860px) {
+  .gallery__grid { grid-template-columns: repeat(3, 1fr); align-items: start; }
+  .gallery__item--offset { margin-top: 3rem; }
+}
+
+/* ==========================================================================
+   Gift reveal (sezione pinned)
+   ========================================================================== */
+.gift {
+  min-height: 100svh;
+  background: var(--gradient-deep);
+  color: var(--white-warm);
+}
+.gift__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 8vw, 4rem);
+  line-height: 1.18;
+  margin: 0;
+}
+.gift__title em { font-style: italic; color: var(--gold); }
+
+/* ==========================================================================
+   Viaggio
+   ========================================================================== */
+.travel { background: var(--cream); }
+.travel__text {
+  font-size: clamp(1.15rem, 3vw, 1.5rem);
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 46ch;
+  margin: 0 auto 1.25rem;
+}
+.travel__text--emph {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.4rem, 3.6vw, 1.9rem);
+  color: var(--terracotta-deep);
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   Prossimi passi
+   ========================================================================== */
+.steps { background: var(--cream-deep); }
+.steps__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.7rem, 5vw, 2.6rem);
+  margin: 0 0 3rem;
+}
+.steps__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+}
+.step {
+  background: var(--white-warm);
+  border-radius: 16px;
+  padding: 2.25rem 1.75rem;
+  box-shadow: 0 20px 40px -24px rgba(44, 33, 23, 0.28);
+  text-align: center;
+}
+.step__icon {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  color: var(--terracotta);
+  margin-bottom: 1rem;
+}
+.step__icon svg { width: 100%; height: 100%; }
+.step h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin: 0 0 0.6rem;
+  color: var(--ink);
+}
+.step p {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  margin: 0;
+}
+
+@media (min-width: 860px) {
+  .steps__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ==========================================================================
+   Chiusura
+   ========================================================================== */
+.closing {
+  min-height: 100svh;
+  background: var(--gradient-warm);
+  color: var(--white-warm);
+}
+.closing__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 7vw, 3.4rem);
+  line-height: 1.2;
+  margin: 0 0 2rem;
+}
+.closing__signature {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.6vw, 1.4rem);
+  opacity: 0.92;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Desktop: respiro maggiore
+   ========================================================================== */
+@media (min-width: 1200px) {
+  :root { --section-pad-x: 2rem; }
+  .section__inner--wide { max-width: 1080px; }
+}

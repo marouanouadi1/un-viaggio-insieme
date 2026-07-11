@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="g2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#dcb8a0"/>
+      <stop offset="50%" stop-color="#c98a6b"/>
+      <stop offset="100%" stop-color="#8c5a4a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#g2)"/>
+  <g opacity="0.35" fill="none" stroke="#fff" stroke-width="2">
+    <rect x="180" y="330" width="440" height="340" rx="8"/>
+  </g>
+  <text x="400" y="510" font-family="Georgia, serif" font-size="28" fill="#fff" text-anchor="middle" opacity="0.85">una foto insieme</text>
+</svg>

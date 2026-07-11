@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tanti auguri — un viaggio ci aspetta</title>
+<meta name="description" content="Un regalo di compleanno: un weekend insieme, tutto da organizzare.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%23c96f5c'/%3E%3Crect x='9' y='21' width='30' height='19' rx='2' stroke='%23fffaf3' stroke-width='2.5' fill='none'/%3E%3Cpath d='M9 27.5h30' stroke='%23fffaf3' stroke-width='2.5'/%3E%3Cpath d='M24 21v19' stroke='%23fffaf3' stroke-width='2.5'/%3E%3Cpath d='M24 21c-2-5.5-5.5-8-8-6.3s0 6.3 8 6.3Z' stroke='%23fffaf3' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cpath d='M24 21c2-5.5 5.5-8 8-6.3s0 6.3-8 6.3Z' stroke='%23fffaf3' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preload" href="./assets/fonts/fraunces-semibold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./assets/fonts/inter-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<!-- Sipario d'apertura: sempre visibile finché non si tocca. Senza JS viene nascosto (vedi noscript sotto). -->
+<div id="curtain" class="curtain" role="button" tabindex="0" aria-label="Tocca per aprire il tuo regalo">
+  <div class="curtain__glow" aria-hidden="true"></div>
+  <div class="curtain__inner">
+    <p class="curtain__eyebrow">17 luglio</p>
+    <h1 class="curtain__title">Tocca per aprire<br>il tuo regalo</h1>
+    <button id="curtain-btn" class="curtain__btn" type="button" aria-label="Apri il regalo">
+      <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="8" y="20" width="32" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+        <path d="M8 27h32" stroke="currentColor" stroke-width="2"/>
+        <path d="M24 20v20" stroke="currentColor" stroke-width="2"/>
+        <path d="M24 20c-2-6-6-9-9-7s0 7 9 7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M24 20c2-6 6-9 9-7s0 7-9 7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <p class="curtain__hint">(con il suono, se vuoi)</p>
+  </div>
+</div>
+<noscript><style>#curtain{display:none !important;}</style></noscript>
+
+<main id="content">
+
+  <!-- HERO -->
+  <section id="hero" class="section hero">
+    <div class="section__inner">
+      <p class="eyebrow" data-reveal>17 luglio</p>
+      <h1 class="hero__title">
+        <span class="hero__title-line" data-reveal>Tanti auguri,</span>
+        <span class="hero__title-line hero__title-name" data-reveal><span data-cfg="name">NOME</span></span>
+      </h1>
+      <p class="hero__subtitle" data-reveal data-cfg="hero-subtitle">Oggi si festeggia te.</p>
+      <div class="scroll-cue" data-reveal aria-hidden="true"><span class="scroll-cue__line"></span>scorri</div>
+    </div>
+  </section>
+
+  <!-- MESSAGGIO -->
+  <section class="section message">
+    <div class="section__inner">
+      <p class="eyebrow" data-reveal>Prima di tutto</p>
+      <p class="message__lines">
+        <span class="line" data-reveal>Volevo scriverti qualcosa</span>
+        <span class="line" data-reveal>di più di un semplice messaggio.</span>
+        <span class="line line--soft" data-reveal>Qualcosa che restasse.</span>
+      </p>
+      <p class="message__note hidden" id="personal-note" data-reveal></p>
+    </div>
+  </section>
+
+  <!-- GALLERIA RICORDI -->
+  <section class="section gallery">
+    <div class="section__inner section__inner--wide">
+      <p class="eyebrow" data-reveal>Un pezzo di strada, insieme</p>
+      <div class="gallery__grid">
+        <!-- FOTO 1: quando hai la foto, sostituisci src="./assets/img/placeholder-1.svg" con "./assets/img/foto-1.jpg" -->
+        <figure class="gallery__item" data-reveal>
+          <img src="./assets/img/placeholder-1.svg" alt="Un nostro ricordo" loading="lazy" width="800" height="1000">
+          <figcaption>un nostro ricordo</figcaption>
+        </figure>
+        <!-- FOTO 2: sostituisci con "./assets/img/foto-2.jpg" -->
+        <figure class="gallery__item gallery__item--offset" data-reveal>
+          <img src="./assets/img/placeholder-2.svg" alt="Una foto insieme" loading="lazy" width="800" height="1000">
+          <figcaption>una foto insieme</figcaption>
+        </figure>
+        <!-- FOTO 3: sostituisci con "./assets/img/foto-3.jpg" -->
+        <figure class="gallery__item" data-reveal>
+          <img src="./assets/img/placeholder-3.svg" alt="Il prossimo viaggio" loading="lazy" width="800" height="1000">
+          <figcaption>quello che verrà</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVEAL DEL REGALO (pinned) -->
+  <section id="gift" class="section gift">
+    <div class="section__inner">
+      <p class="eyebrow eyebrow--light" data-reveal>Ma non è tutto</p>
+      <h2 class="gift__title" data-reveal>
+        Il mio regalo<br>è un weekend.<br><em>Insieme.</em>
+      </h2>
+    </div>
+  </section>
+
+  <!-- IL VIAGGIO -->
+  <section class="section travel">
+    <div class="section__inner">
+      <p class="eyebrow" data-reveal>Il viaggio</p>
+      <p class="travel__text" data-reveal>È da tanto che ne parliamo — quella valigia mai fatta, quella meta segnata e poi sempre rimandata.</p>
+      <p class="travel__text" data-reveal>Stavolta niente scuse, niente "magari il prossimo anno".</p>
+      <p class="travel__text travel__text--emph" data-reveal>Lo organizziamo davvero. Io e te.</p>
+    </div>
+  </section>
+
+  <!-- PROSSIMI PASSI -->
+  <section class="section steps">
+    <div class="section__inner section__inner--wide">
+      <p class="eyebrow" data-reveal>I prossimi passi</p>
+      <h2 class="steps__title" data-reveal>Tu devi fare una sola cosa.</h2>
+      <div class="steps__grid">
+        <div class="step" data-reveal>
+          <span class="step__icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="19" stroke="currentColor" stroke-width="2"/><path d="M30 18l-9 6-3 9 9-6 3-9z" fill="currentColor"/></svg>
+          </span>
+          <h3>Scegli la meta</h3>
+          <p>Il posto lo decidi tu. Mare, montagna, città: dove ti porta il cuore.</p>
+        </div>
+        <div class="step" data-reveal>
+          <span class="step__icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none"><rect x="8" y="10" width="32" height="28" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 18h32M16 6v8M32 6v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <h3>Fissiamo la data</h3>
+          <p>Al resto pensiamo insieme, con calma, appena hai deciso.</p>
+        </div>
+        <div class="step" data-reveal>
+          <span class="step__icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none"><rect x="10" y="16" width="28" height="22" rx="3" stroke="currentColor" stroke-width="2"/><path d="M18 16v-4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4" stroke="currentColor" stroke-width="2"/></svg>
+          </span>
+          <h3>Si parte</h3>
+          <p>Biglietti, dettagli, valigie: il resto lo organizziamo io e te.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHIUSURA -->
+  <section class="section closing">
+    <div class="section__inner">
+      <p class="eyebrow eyebrow--light" data-reveal>17 luglio</p>
+      <h2 class="closing__title" data-reveal>Buon compleanno,<br><span data-cfg="name">NOME</span>.</h2>
+      <p class="closing__signature" data-reveal>Con affetto,<br><span data-cfg="signature">Firma</span></p>
+    </div>
+  </section>
+
+</main>
+
+<script src="./assets/lib/gsap.min.js"></script>
+<script src="./assets/lib/ScrollTrigger.min.js"></script>
+<script src="./assets/lib/lenis.min.js"></script>
+<script src="./assets/lib/confetti.min.js"></script>
+<script src="./config.js"></script>
+<script src="./main.js"></script>
+</body>
+</html>

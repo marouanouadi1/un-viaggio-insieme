@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f4e0c8"/>
+      <stop offset="55%" stop-color="#e8a87c"/>
+      <stop offset="100%" stop-color="#c96f5c"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#g1)"/>
+  <g opacity="0.35" fill="none" stroke="#fff" stroke-width="2">
+    <circle cx="400" cy="500" r="220"/>
+    <circle cx="400" cy="500" r="160"/>
+  </g>
+  <text x="400" y="510" font-family="Georgia, serif" font-size="28" fill="#fff" text-anchor="middle" opacity="0.85">un nostro ricordo</text>
+</svg>
