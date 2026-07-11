@@ -43,6 +43,13 @@
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: "Anton";
+  src: url("./assets/fonts/anton-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ==========================================================================
    Reset + variabili
@@ -54,6 +61,7 @@ img { max-width: 100%; display: block; }
 :root {
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-condensed: "Anton", "Arial Narrow", sans-serif;
 
   --cream:        #fbf3e8;
   --cream-deep:   #f3e2cc;
@@ -64,6 +72,12 @@ img { max-width: 100%; display: block; }
   --rose:         #e2946a;
   --gold:         #c9a15a;
   --white-warm:   #fffaf3;
+
+  /* Atto III — la sequenza cinematica del viaggio */
+  --night:        #141210;
+  --flare:        #f2a93c;
+  --flare-deep:   #c97f1f;
+  --paper-dim:    #ede3d3;
 
   --gradient-warm: linear-gradient(160deg, #f6e3c8 0%, #e8a87c 55%, #c96f5c 100%);
   --gradient-deep: linear-gradient(165deg, #8c4a3d 0%, #6f3a30 60%, #4a2a22 100%);
@@ -140,35 +154,71 @@ body.scroll-locked {
   margin: 0 0 2.25rem;
 }
 
-.curtain__btn {
+.giftbox {
   appearance: none;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.08);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0 auto;
+  display: block;
+  width: clamp(200px, 46vw, 260px);
   cursor: pointer;
-  animation: curtain-pulse 2.6s ease-in-out infinite;
-  transition: transform 0.2s ease;
+  animation: giftbox-bob 2.8s ease-in-out infinite;
 }
-.curtain__btn svg { width: 34px; height: 34px; }
-.curtain__btn:hover { transform: scale(1.05); }
-.curtain__btn:disabled { animation: none; opacity: 0.7; cursor: default; }
+.giftbox__svg { width: 100%; height: auto; overflow: visible; color: var(--white-warm); }
+.giftbox__lid {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform 0.25s ease;
+}
+.giftbox:hover .giftbox__lid { transform: rotate(-5deg); }
+.giftbox:disabled { animation: none; cursor: default; }
 
-@keyframes curtain-pulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.25); }
-  50% { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(255,255,255,0); }
+@keyframes giftbox-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .curtain__btn { animation: none; }
+  .giftbox { animation: none; }
+  .giftbox:hover .giftbox__lid { transform: none; }
 }
+
+/* ==========================================================================
+   Toggle audio
+   ========================================================================== */
+/* Il suono è un unico effetto al tap sul regalo: la scelta si fa qui,
+   prima di aprirlo — non serve un controllo persistente dopo. */
+.sound-toggle {
+  position: relative;
+  z-index: 2;
+  margin: 2rem auto 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--white-warm);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.sound-toggle__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--rose);
+  transition: background 0.2s ease;
+}
+.sound-toggle[aria-pressed="false"] .sound-toggle__dot { background: rgba(255, 255, 255, 0.35); }
 
 /* ==========================================================================
    Layout generico sezioni
@@ -287,42 +337,6 @@ body.scroll-locked {
 }
 
 /* ==========================================================================
-   Galleria
-   ========================================================================== */
-.gallery { background: var(--cream-deep); }
-.gallery__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  margin-top: 1rem;
-}
-.gallery__item {
-  margin: 0;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px -20px rgba(44, 33, 23, 0.35);
-}
-.gallery__item img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-}
-.gallery__item figcaption {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  padding: 0.85rem 0.25rem 0;
-  text-align: center;
-  font-style: italic;
-}
-.gallery__item--offset { margin-top: 0; }
-
-@media (min-width: 860px) {
-  .gallery__grid { grid-template-columns: repeat(3, 1fr); align-items: start; }
-  .gallery__item--offset { margin-top: 3rem; }
-}
-
-/* ==========================================================================
    Gift reveal (sezione pinned)
    ========================================================================== */
 .gift {
@@ -340,22 +354,174 @@ body.scroll-locked {
 .gift__title em { font-style: italic; color: var(--gold); }
 
 /* ==========================================================================
-   Viaggio
+   ATTO III — Il viaggio: sequenza cinematica a schermo intero.
+   Ogni .stack-slide resta "incollata" (sticky) mentre si scrolla la sua
+   altezza extra, poi viene coperta dalla slide successiva (stacking naturale
+   via ordine nel DOM, nessun z-index necessario).
    ========================================================================== */
-.travel { background: var(--cream); }
-.travel__text {
-  font-size: clamp(1.15rem, 3vw, 1.5rem);
-  line-height: 1.6;
-  color: var(--ink-soft);
-  max-width: 46ch;
-  margin: 0 auto 1.25rem;
+.journey { position: relative; background: var(--night); }
+
+.stack-slide {
+  /* Il wrapper è esattamente 2x l'altezza del pannello (100svh):
+     la prima metà è la finestra "sticky" in cui il pannello resta
+     incollato e si anima; la seconda metà è lo scroll naturale che
+     lo fa scorrere via, scoperto dal pannello successivo. */
+  position: relative;
+  height: 200svh;
+  background: var(--night);
 }
-.travel__text--emph {
+
+.stack-slide__stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 2rem;
+  text-align: center;
+}
+
+.stack-slide__cap {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  opacity: 0.7;
+  margin: 0;
+}
+.stack-slide__cap--top {
+  position: absolute;
+  top: 2rem;
+  left: 1rem;
+  right: 1rem;
+  max-width: 26ch;
+  margin: 0 auto;
+}
+.stack-slide__cap--bottom {
+  position: absolute;
+  bottom: 2.25rem;
+  left: 2rem;
+  right: 2rem;
+  max-width: 44ch;
+  margin: 0 auto;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  line-height: 1.5;
+  opacity: 0.6;
+}
+
+.stack-slide__word {
+  font-family: var(--font-condensed);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(3.4rem, 20vw, 11rem);
+  line-height: 0.9;
+  color: var(--flare);
+  margin: 0;
+}
+.stack-slide__word--accent {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(1.4rem, 3.6vw, 1.9rem);
-  color: var(--terracotta-deep);
-  margin-bottom: 0;
+  font-weight: 500;
+  text-transform: none;
+  font-size: clamp(2.1rem, 8vw, 4.4rem);
+  color: var(--white-warm);
+  line-height: 1.2;
+}
+
+/* Capitolo carosello */
+.stack-slide__stage--carousel { padding: 0; }
+.stack-slide__stage--carousel .stack-slide__cap--top {
+  top: 0;
+  left: 0;
+  right: 0;
+  max-width: none;
+  z-index: 3;
+  padding: 1.75rem 6.5rem 2.5rem 2rem;
+  background: linear-gradient(to bottom, rgba(10, 8, 6, 0.65), transparent);
+}
+
+.carousel { position: relative; width: 100%; height: 100%; }
+.carousel__track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.carousel__track::-webkit-scrollbar { display: none; }
+.carousel__slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  position: relative;
+  height: 100%;
+}
+.carousel__slide img,
+.carousel__slide video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.carousel__caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 3.5rem 1.5rem 1.75rem;
+  background: linear-gradient(to top, rgba(10, 8, 6, 0.7), transparent);
+  color: var(--white-warm);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1rem;
+  text-align: center;
+}
+.carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(10, 8, 6, 0.4);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 4;
+}
+.carousel__arrow--prev { left: 1rem; }
+.carousel__arrow--next { right: 1rem; }
+.carousel__counter {
+  position: absolute;
+  bottom: 1.4rem;
+  right: 1.5rem;
+  z-index: 4;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+@media (min-width: 860px) {
+  .stack-slide__cap--bottom { font-size: 0.95rem; }
 }
 
 /* ==========================================================================
