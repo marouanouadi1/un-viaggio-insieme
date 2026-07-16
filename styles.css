@@ -452,36 +452,6 @@ body {
   pointer-events: none;
 }
 
-/* Via di fuga sempre visibile una volta bloccata la navigazione: non deve
-   mai restare nascosta, altrimenti chi non vuole guardare resta bloccato. */
-.story-video__skip {
-  position: absolute;
-  top: max(1.5rem, env(safe-area-inset-top));
-  right: max(1.5rem, env(safe-area-inset-right));
-  z-index: 3;
-  appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--white-warm);
-  padding: 0.5rem 0.95rem;
-  border-radius: 999px;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease;
-}
-.story-video--active .story-video__skip {
-  opacity: 1;
-  visibility: visible;
-}
-
 /* ==========================================================================
    Il cuore: il messaggio prima del regalo
    ========================================================================== */

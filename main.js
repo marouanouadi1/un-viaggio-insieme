@@ -198,12 +198,11 @@
    * e compare l'invito a toccare per avviare il video (un tocco reale è
    * l'unico modo per garantire l'audio ovunque, autoplay incluso non lo
    * è su mobile). Mentre il video suona, la musica di sottofondo tace.
-   * Alla fine (o se si sceglie di saltare) tutto riprende come prima.
+   * Alla fine tutto riprende come prima.
    * ------------------------------------------------------------------ */
   var storyVideoSection = document.getElementById("story-video-section");
   var storyVideo = document.getElementById("story-video");
   var storyVideoPlayBtn = document.getElementById("story-video-play");
-  var storyVideoSkipBtn = document.getElementById("story-video-skip");
 
   if (storyVideoSection && storyVideo) {
     if (!cfg.storyVideo || !cfg.storyVideo.src) {
@@ -221,7 +220,6 @@
         // con i controlli nativi per guardarlo quando si vuole.
         storyVideo.controls = true;
         storyVideoPlayBtn.remove();
-        storyVideoSkipBtn.remove();
       } else {
         var storyLocked = false;
         var storyDone = false;
@@ -314,7 +312,6 @@
           storyVideo.play().catch(function () {});
           enterFullscreen();
         });
-        storyVideoSkipBtn.addEventListener("click", finishStory);
         storyVideo.addEventListener("ended", finishStory);
         // iOS Safari: quando si esce dal fullscreen nativo del video
         // (es. tasto "Fine"), si considera la storia conclusa.
