@@ -236,11 +236,44 @@
           else document.body.classList.remove("scroll-locked");
         }
 
+        // Fullscreen reale del browser: va richiesto dentro un gesto utente
+        // (il tocco su "play"), altrimenti i browser lo rifiutano. Su iOS
+        // Safari i div non supportano il Fullscreen API: si ricade sul
+        // fullscreen nativo del tag <video> (con i controlli nativi di iOS).
+        function enterFullscreen() {
+          var request =
+            storyVideoSection.requestFullscreen ||
+            storyVideoSection.webkitRequestFullscreen ||
+            storyVideoSection.msRequestFullscreen;
+          if (request) {
+            try {
+              var result = request.call(storyVideoSection);
+              if (result && typeof result.catch === "function") result.catch(function () {});
+            } catch (err) {}
+          } else if (storyVideo.webkitEnterFullscreen) {
+            try {
+              storyVideo.webkitEnterFullscreen();
+            } catch (err) {}
+          }
+        }
+        function exitFullscreen() {
+          var fsElement =
+            document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+          var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+          if (fsElement && exit) {
+            try {
+              var result = exit.call(document);
+              if (result && typeof result.catch === "function") result.catch(function () {});
+            } catch (err) {}
+          }
+        }
+
         function finishStory() {
           if (storyDone) return;
           storyDone = true;
           storyVideoSection.classList.remove("story-video--active", "story-video--playing");
           storyVideo.pause();
+          exitFullscreen();
           unlockScroll();
           if (bgMusic && bgMusic.src) bgMusic.play().catch(function () {});
         }
@@ -249,9 +282,13 @@
           storyVideoSection.classList.add("story-video--playing");
           if (bgMusic && !bgMusic.paused) bgMusic.pause();
           storyVideo.play().catch(function () {});
+          enterFullscreen();
         });
         storyVideoSkipBtn.addEventListener("click", finishStory);
         storyVideo.addEventListener("ended", finishStory);
+        // iOS Safari: quando si esce dal fullscreen nativo del video
+        // (es. tasto "Fine"), si considera la storia conclusa.
+        storyVideo.addEventListener("webkitendfullscreen", finishStory);
 
         var storyObserver = new IntersectionObserver(
           function (entries) {
