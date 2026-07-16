@@ -94,6 +94,7 @@ body {
   overflow-x: hidden;
   overflow-y: hidden; /* lo scroll reale avviene dentro #content, non sul body */
   height: 100svh;
+  height: var(--app-height, 100svh);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -104,6 +105,7 @@ body {
    ========================================================================== */
 #content {
   height: 100svh;
+  height: var(--app-height, 100svh);
   overflow-y: auto;
   overflow-x: hidden;
   scroll-behavior: smooth;
@@ -221,11 +223,18 @@ body {
    ========================================================================== */
 .section {
   position: relative;
-  min-height: 100svh;
+  /* Altezza fissa (non min-height): ogni slide occupa esattamente uno
+     schermo, così lo snap non mostra mai un pezzetto della slide vicina.
+     --app-height è calcolata in JS da innerHeight (vedi main.js) e resta
+     in sync con #content: stessa unità, stesso valore, sempre. */
+  height: 100svh;
+  height: var(--app-height, 100svh);
   padding: var(--section-pad-y) var(--section-pad-x);
   display: flex;
   align-items: center;
+  align-items: safe center; /* se il contenuto è più alto dello schermo, resta raggiungibile scrollando invece di essere tagliato in cima */
   justify-content: center;
+  overflow-y: auto;
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
@@ -286,7 +295,6 @@ body {
    Hero
    ========================================================================== */
 .hero {
-  min-height: 100svh;
   background: var(--gradient-warm);
   color: var(--white-warm);
   text-align: center;
@@ -382,7 +390,8 @@ body {
 .story-video {
   position: relative;
   width: 100%;
-  min-height: 100svh;
+  height: 100svh;
+  height: var(--app-height, 100svh);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -477,7 +486,6 @@ body {
    Il cuore: il messaggio prima del regalo
    ========================================================================== */
 .heart {
-  min-height: 100svh;
   background: var(--gradient-warm);
   color: var(--white-warm);
 }
@@ -500,7 +508,6 @@ body {
    Gift reveal (crescendo all'ingresso, vedi .gift__title[data-reveal] sopra)
    ========================================================================== */
 .gift {
-  min-height: 100svh;
   background: var(--gradient-deep);
   color: var(--white-warm);
 }
@@ -571,7 +578,6 @@ body {
    Chiusura
    ========================================================================== */
 .closing {
-  min-height: 100svh;
   background: var(--gradient-warm);
   color: var(--white-warm);
 }

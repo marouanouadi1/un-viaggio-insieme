@@ -123,7 +123,27 @@
   }
 
   /* --------------------------------------------------------------------
-   * 3) #content: contenitore di scroll con snap a schermo intero.
+   * 3) Altezza reale dello schermo, misurata da JS.
+   * Le unità *vh possono essere calcolate in modo leggermente diverso a
+   * seconda che siano usate in min-height o height, e differire di
+   * qualche pixel da un elemento all'altro: basta questo per far spuntare
+   * un pezzetto della slide successiva quando lo snap si ferma. Fissiamo
+   * quindi un solo valore in px (--app-height), usato ovunque, così
+   * #content e ogni sua slide hanno sempre esattamente la stessa altezza.
+   * ------------------------------------------------------------------ */
+  function setAppHeight() {
+    document.documentElement.style.setProperty("--app-height", window.innerHeight + "px");
+  }
+  setAppHeight();
+  var appHeightResizeTimer = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(appHeightResizeTimer);
+    appHeightResizeTimer = setTimeout(setAppHeight, 150);
+  });
+  window.addEventListener("orientationchange", setAppHeight);
+
+  /* --------------------------------------------------------------------
+   * 3b) #content: contenitore di scroll con snap a schermo intero.
    * Lo scroll parte bloccato finché non si apre il sipario (vedi §5).
    * ------------------------------------------------------------------ */
   var hasGsap = typeof gsap !== "undefined";
@@ -138,7 +158,7 @@
   lockContentScroll();
 
   /* --------------------------------------------------------------------
-   * 3b) Reveal al primo ingresso in vista: una classe CSS ([data-reveal]
+   * 3c) Reveal al primo ingresso in vista: una classe CSS ([data-reveal]
    * → .is-visible) fa il lavoro che prima faceva ScrollTrigger; qui si
    * osservano gli elementi (esclusi quelli dell'hero, che compaiono con
    * l'apertura del sipario, vedi playHeroIntro).
@@ -189,6 +209,10 @@
     if (!cfg.storyVideo || !cfg.storyVideo.src) {
       storyVideoSection.remove();
     } else {
+      // src impostato subito ma con preload="none" in HTML: il video da
+      // ~27MB non parte a scaricarsi al caricamento della pagina (che
+      // rallenterebbe curtain/font/confetti). Il download vero comincia
+      // solo quando la sezione si avvicina (vedi storyObserver sotto).
       storyVideo.src = cfg.storyVideo.src;
       if (cfg.storyVideo.poster) storyVideo.poster = cfg.storyVideo.poster;
 
@@ -201,6 +225,46 @@
       } else {
         var storyLocked = false;
         var storyDone = false;
+        var storyPendingLock = false;
+        var storyPrimed = false;
+        var contentIsScrolling = false;
+        var scrollSettleTimer = null;
+        var supportsScrollend = "onscrollend" in window;
+
+        // Il blocco vero e proprio (overflow:hidden su #content, vedi
+        // lockContentScroll) va applicato solo a scroll ormai fermo:
+        // farlo mentre lo snap-scroll è ancora in corso (il momentum su
+        // iOS incluso) interrompe l'animazione a metà, ed è quello che si
+        // percepisce come uno "scatto"/blocco proprio all'arrivo sul video.
+        function applyStoryLockIfPending() {
+          if (storyPendingLock && !storyLocked && !storyDone) {
+            storyLocked = true;
+            storyVideoSection.classList.add("story-video--active");
+            lockContentScroll();
+          }
+        }
+
+        if (scroller) {
+          scroller.addEventListener(
+            "scroll",
+            function () {
+              contentIsScrolling = true;
+              if (supportsScrollend) return; // gestito dall'evento scrollend sotto
+              clearTimeout(scrollSettleTimer);
+              scrollSettleTimer = setTimeout(function () {
+                contentIsScrolling = false;
+                applyStoryLockIfPending();
+              }, 120);
+            },
+            { passive: true }
+          );
+          if (supportsScrollend) {
+            scroller.addEventListener("scrollend", function () {
+              contentIsScrolling = false;
+              applyStoryLockIfPending();
+            });
+          }
+        }
 
         // Fullscreen reale del browser: va richiesto dentro un gesto utente
         // (il tocco su "play"), altrimenti i browser lo rifiutano. Su iOS
@@ -256,17 +320,25 @@
         // (es. tasto "Fine"), si considera la storia conclusa.
         storyVideo.addEventListener("webkitendfullscreen", finishStory);
 
+        // Due soglie in un solo observer: alla prima comparsa (soglia 0) si
+        // avvia il caricamento vero del video, con un margine di anticipo
+        // mentre si legge la sezione precedente; al 60% si prepara il
+        // blocco della navigazione, applicato solo a scroll fermo (sopra).
         var storyObserver = new IntersectionObserver(
           function (entries) {
             entries.forEach(function (entry) {
-              if (entry.isIntersecting && !storyLocked && !storyDone) {
-                storyLocked = true;
-                storyVideoSection.classList.add("story-video--active");
-                lockContentScroll();
+              if (entry.isIntersecting && !storyPrimed && !storyDone) {
+                storyPrimed = true;
+                storyVideo.preload = "auto";
+                storyVideo.load();
+              }
+              if (entry.intersectionRatio >= 0.6 && !storyLocked && !storyDone) {
+                storyPendingLock = true;
+                if (!contentIsScrolling) applyStoryLockIfPending();
               }
             });
           },
-          { root: scroller, threshold: 0.6 }
+          { root: scroller, threshold: [0, 0.6] }
         );
         storyObserver.observe(storyVideoSection);
       }
