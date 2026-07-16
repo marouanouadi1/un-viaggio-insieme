@@ -76,19 +76,18 @@
   </section>
 
   <!-- ============================================================
-       LA NOSTRA STORIA: timeline verticale scorrevole, con un
-       aeroplanino di carta che scende lungo la linea di volo
-       mentre si scrolla. Le tappe si popolano da config.timeline.
+       LA NOSTRA STORIA: immersione a schermo intero nel video.
+       Lo scroll si blocca finché non si tocca "play"; il video
+       (con il suo audio) racconta la storia. Alla fine, la
+       navigazione del sito riprende verso il messaggio e il regalo.
        ============================================================ -->
-  <section class="timeline-section" id="timeline-section">
-    <div class="section__inner">
-      <p class="eyebrow" data-reveal>La nostra storia</p>
-      <h2 class="timeline__heading" data-reveal>Da dove siamo partiti.</h2>
-    </div>
-    <!-- Popolato da main.js a partire da config.timeline: capitoli a zigzag
-         (con la loro linea di volo + aeroplanino) alternati a momenti a
-         schermo intero. -->
-    <div class="timeline__sequence" id="timeline-sequence"></div>
+  <section class="story-video" id="story-video-section">
+    <video id="story-video" class="story-video__player" playsinline preload="auto" aria-label="Il nostro racconto"></video>
+    <button type="button" id="story-video-play" class="story-video__play" aria-label="Guarda il video">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="rgba(44,33,23,0.45)" stroke="rgba(255,250,243,0.7)" stroke-width="1.5"/><path d="M26 20l20 12-20 12V20z" fill="var(--white-warm)"/></svg>
+      <span>Tocca per guardare</span>
+    </button>
+    <button type="button" id="story-video-skip" class="story-video__skip">Salta ›</button>
   </section>
 
   <!-- IL CUORE: prima del regalo, quello che conta davvero -->

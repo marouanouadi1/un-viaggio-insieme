@@ -329,213 +329,98 @@ body.scroll-locked {
 }
 
 /* ==========================================================================
-   LA NOSTRA STORIA — timeline verticale scorrevole con aeroplanino
+   LA NOSTRA STORIA — immersione a schermo intero nel video
    ========================================================================== */
-.timeline-section {
+.story-video {
   position: relative;
-  background: var(--cream-deep);
-  padding: var(--section-pad-y) var(--section-pad-x);
-}
-
-.timeline__heading {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(1.8rem, 6vw, 3rem);
-  margin: 0;
-  color: var(--ink);
-}
-
-/* Un "capitolo" = una serie di tappe consecutive con la propria linea a
-   zigzag e il proprio aeroplanino. I capitoli sono separati dai momenti
-   a schermo intero (vedi più sotto). */
-.timeline__chapter {
-  position: relative;
-  max-width: var(--container-wide);
-  margin: clamp(3rem, 8vw, 5rem) auto;
-}
-
-/* La linea di volo: un unico <path> SVG che collega i pallini delle tappe
-   con una curva a zigzag, ricalcolato via JS a ogni cambio di layout. */
-.timeline__chapter-svg {
-  position: absolute;
-  inset: 0;
   width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
-.timeline__chapter-line-bg { opacity: 0.28; }
-.timeline__chapter-line-fill { opacity: 0.95; }
-
-/* L'aeroplanino di carta che segue la curva mentre si scrolla */
-.timeline__plane {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 38px;
-  margin: -19px 0 0 -19px;
-  z-index: 3;
-  opacity: var(--plane-opacity, 1);
-  transform: translate(var(--plane-x, 0px), var(--plane-y, 0px)) rotate(var(--plane-rot, 0deg));
-  filter: drop-shadow(0 8px 14px rgba(44, 33, 23, 0.25));
-}
-.timeline__plane-icon { width: 100%; height: auto; display: block; }
-
-@media (prefers-reduced-motion: reduce) {
-  .timeline__plane { display: none; }
-}
-
-.timeline__nodes {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(3rem, 9vw, 5rem);
-}
-
-.timeline__node {
-  display: grid;
-  grid-template-columns: 104px 1fr;
-  column-gap: 0.85rem;
-}
-.timeline__dot {
-  grid-column: 1;
-  width: 14px;
-  height: 14px;
-  margin-top: 0.35rem;
-  margin-left: 12px; /* posizione "sinistra" del pallino nel binario: crea il primo lato dello zigzag */
-  border-radius: 50%;
-  background: var(--terracotta-deep);
-  border: 3px solid var(--cream-deep);
-}
-.timeline__node--right .timeline__dot { margin-left: 78px; } /* posizione "destra": lo zigzag nasce da questo scarto */
-.timeline__card { grid-column: 2; }
-
-.timeline__date {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--terracotta-deep);
-  margin: 0 0 0.4rem;
-}
-.timeline__title-text {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(1.3rem, 3.6vw, 1.7rem);
-  color: var(--ink);
-  margin: 0 0 0.6rem;
-}
-.timeline__text {
-  font-size: 0.98rem;
-  line-height: 1.6;
-  color: var(--ink-soft);
-  margin: 0 0 1.25rem;
-  max-width: 42ch;
-}
-
-.timeline__media {
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px -24px rgba(44, 33, 23, 0.32);
-  max-width: 360px;
-}
-.timeline__media img,
-.timeline__media video {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-}
-.timeline__caption {
-  margin: 0;
-  padding: 0.65rem 0.9rem;
-  background: var(--white-warm);
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  text-align: left;
-}
-
-@media (min-width: 860px) {
-  .timeline__node {
-    grid-template-columns: 1fr 130px 1fr;
-    column-gap: 2rem;
-    align-items: start;
-  }
-  .timeline__node--left .timeline__card { grid-column: 1; text-align: right; }
-  .timeline__node--left .timeline__dot { grid-column: 2; margin-left: 8px; }
-  .timeline__node--left .timeline__media { margin-left: auto; }
-  .timeline__node--left .timeline__text { margin-left: auto; }
-
-  .timeline__node--right .timeline__card { grid-column: 3; }
-  .timeline__node--right .timeline__dot { grid-column: 2; margin-left: 108px; }
-}
-
-/* ==========================================================================
-   Momenti a schermo intero: la pausa cinematica dentro il racconto.
-   Esce dal contenitore centrale (full-bleed) e occupa tutta la larghezza.
-   ========================================================================== */
-.timeline__moment {
-  position: relative;
-  width: 100vw;
-  left: 50%;
-  transform: translateX(-50%);
   min-height: 100svh;
-  margin: clamp(2rem, 6vw, 3.5rem) 0;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   overflow: hidden;
   background: var(--gradient-deep);
 }
-.timeline__moment--text {
-  align-items: center;
-}
-.timeline__moment__media {
+
+.story-video__player {
   position: absolute;
   inset: 0;
-  z-index: 1;
-}
-.timeline__moment__media img,
-.timeline__moment__media video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  display: block;
+  object-fit: contain;
+  background: var(--gradient-deep);
 }
-.timeline__moment__scrim {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: linear-gradient(to top, rgba(44, 33, 23, 0.78), rgba(44, 33, 23, 0.05) 60%);
-}
-.timeline__moment__content {
+
+/* Invito a toccare per avviare il video: nascosto finché la sezione non
+   arriva a schermo intero e blocca la navigazione (vedi main.js). */
+.story-video__play {
   position: relative;
-  z-index: 3;
-  max-width: 640px;
-  padding: clamp(2.5rem, 10vw, 4.5rem) 1.75rem;
-  text-align: center;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  appearance: none;
+  border: none;
+  background: transparent;
   color: var(--white-warm);
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease;
 }
-.timeline__moment__title {
-  font-family: var(--font-display);
-  font-style: italic;
+.story-video__play svg {
+  width: clamp(64px, 16vw, 92px);
+  height: auto;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.35));
+}
+.story-video__play span {
+  font-family: var(--font-body);
   font-weight: 600;
-  font-size: clamp(1.9rem, 8vw, 3.4rem);
-  line-height: 1.2;
-  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
-.timeline__moment__text {
-  font-size: clamp(1rem, 2.6vw, 1.2rem);
-  opacity: 0.92;
-  margin: 0;
-  max-width: 40ch;
-  margin-left: auto;
-  margin-right: auto;
+
+.story-video--active .story-video__play {
+  opacity: 1;
+  visibility: visible;
+}
+.story-video--playing .story-video__play {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Via di fuga sempre visibile una volta bloccata la navigazione: non deve
+   mai restare nascosta, altrimenti chi non vuole guardare resta bloccato. */
+.story-video__skip {
+  position: absolute;
+  top: max(1.5rem, env(safe-area-inset-top));
+  right: max(1.5rem, env(safe-area-inset-right));
+  z-index: 3;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white-warm);
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+.story-video--active .story-video__skip {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* ==========================================================================

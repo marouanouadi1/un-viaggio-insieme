@@ -4,11 +4,11 @@ Sito regalo di compleanno per Iman — single page, mobile-first, super animato.
 Nessun build, nessuna dipendenza esterna: apri `index.html` e funziona.
 
 L'esperienza: un sipario con un pacco regalo da aprire (con tanto di musica
-e coriandoli), poi gli auguri, una breve battuta sull'età, il racconto della
-nostra storia — una timeline verticale scorrevole con un aeroplanino di carta
-che scende lungo la linea del percorso — un messaggio dal cuore, il reveal
-del vero regalo (un weekend insieme, noi tre) e infine come funziona.
-Chiude con la firma.
+e coriandoli), poi gli auguri, una breve battuta sull'età, l'immersione a
+schermo intero nel video della nostra storia — la navigazione si blocca,
+si tocca per guardarlo, e solo alla fine riprende — un messaggio dal cuore,
+il reveal del vero regalo (un weekend insieme, noi tre) e infine come
+funziona. Chiude con la firma.
 
 ## Come personalizzare i testi
 
@@ -23,7 +23,7 @@ window.CONFIG = {
   teaseEyebrow: "...",      // etichetta sopra la battuta sull'età
   teaseLines: [ ... ],      // la battuta stessa (array di frasi)
   music: { ... },           // traccia audio, vedi sotto
-  timeline: [ ... ],        // le tappe della vostra storia, vedi sotto
+  storyVideo: { ... },      // il video della vostra storia, vedi sotto
 };
 ```
 
@@ -46,35 +46,27 @@ Se lasci `src` vuoto, al suo posto suona una breve melodia festosa generata
 al volo (nessun file da caricare) — utile finché non hai scelto la traccia
 definitiva.
 
-## Come raccontare la vostra storia (timeline)
+## Come raccontare la vostra storia (video)
 
-La sezione centrale "La nostra storia" si popola dall'array `timeline` in
-`config.js`: ogni elemento è una tappa del racconto, con data (facoltativa),
-titolo, testo e foto/video.
+Dopo la battuta sull'età, il sito si ferma e si immerge a schermo intero nel
+video: si tocca per avviarlo (con l'audio, sempre — un tocco reale è l'unico
+modo per garantirlo su ogni dispositivo), e solo alla sua fine (o se si
+sceglie "Salta") la navigazione riprende verso il messaggio e il regalo.
 
 ```js
-timeline: [
-  {
-    date: "17 luglio 1999",
-    title: "Sei nata tu",
-    text: "Comincia tutto da qui...",
-    media: [{ type: "image", src: "assets/img/foto-1.jpg", caption: "Iman da piccola" }],
-  },
-  // altre tappe...
-],
+storyVideo: {
+  src: "assets/video/storia.mp4",         // il tuo video
+  poster: "assets/video/storia-poster.jpg", // fotogramma mostrato prima del play (facoltativo)
+},
 ```
 
-1. Copia le tue foto in `assets/img/` e i tuoi video in `assets/video/`.
-2. Aggiungi/modifica le tappe con i tuoi testi e i nomi dei tuoi file
-   (`type: "image"` o `"video"`, `media` può avere più elementi, `caption`
-   facoltativa — stringa vuota per ometterla).
-3. Le tappe si alternano automaticamente a sinistra/destra della linea
-   (o imposta `side: "left"` / `"right"` per deciderlo tu).
-4. I video vengono riprodotti muti, in loop, solo quando la tappa è visibile.
-5. Ri-deploya (vedi sotto).
-
-Scrollando, la linea di volo si disegna e un aeroplanino di carta la
-percorre dall'alto verso il basso.
+1. Copia il tuo video in `assets/video/`.
+2. Se il file è pesante, comprimilo prima di caricarlo (GitHub rifiuta i
+   file da 100MB o più): con ffmpeg, qualcosa come
+   `ffmpeg -i originale.mp4 -vf scale=810:1440 -c:v libx264 -crf 26 -c:a aac -b:a 128k storia.mp4`
+   è un buon punto di partenza per un video verticale da telefono.
+3. Lascia `storyVideo.src` vuoto (`""`) per non mostrare questa sezione.
+4. Ri-deploya (vedi sotto).
 
 ## Come vedere il sito in locale
 
@@ -106,14 +98,13 @@ L'URL del sito è:
 
 ```
 index.html      struttura della pagina (sezioni dell'esperienza)
-styles.css      stile: colori, font, layout responsive, timeline
+styles.css      stile: colori, font, layout responsive
 main.js         animazioni (GSAP, ScrollTrigger, Lenis, confetti, Web Audio)
-config.js       👉 unico file da modificare per testi, musica e timeline
+config.js       👉 unico file da modificare per testi, musica e video
 assets/lib/     librerie vendored (nessuna CDN)
 assets/fonts/   font self-hosted (Fraunces, Inter, Anton)
 assets/audio/   qui va la tua traccia musicale
-assets/img/     immagini/placeholder della timeline
-assets/video/   qui vanno i tuoi video per la timeline
+assets/video/   qui va il video della vostra storia
 ```
 
 ## Nota
