@@ -18,7 +18,7 @@
   var subtitleEl = document.querySelector('[data-cfg="hero-subtitle"]');
   if (subtitleEl) {
     var subtitle = "Oggi si festeggia te.";
-    if (cfg.age) subtitle += " Oggi ne compi " + cfg.age + " anni.";
+    if (cfg.age) subtitle += " Oggi compi " + cfg.age + " anni.";
     subtitleEl.textContent = subtitle;
   }
 
@@ -305,6 +305,27 @@
           }
         }
 
+        // La vera Fullscreen API, mentre è attiva, toglie alla sezione lo
+        // spazio che occupava nel flusso normale di #content: lo scroll si
+        // aggiusta di conseguenza (finendo per mostrare la slide precedente),
+        // e quell'aggiustamento resta anche dopo l'uscita dal fullscreen. Ci
+        // riallineiamo appena il fullscreen è davvero chiuso (non prima:
+        // l'uscita è asincrona, farlo subito dopo aver chiesto l'uscita
+        // rischia di intervenire mentre la sezione è ancora fuori flusso).
+        function realignStoryScroll() {
+          if (!storyDone || !scroller) return;
+          var prevBehavior = scroller.style.scrollBehavior;
+          scroller.style.scrollBehavior = "auto";
+          scroller.scrollTop = storyVideoSection.offsetTop;
+          scroller.style.scrollBehavior = prevBehavior;
+        }
+        document.addEventListener("fullscreenchange", function () {
+          if (!document.fullscreenElement) requestAnimationFrame(realignStoryScroll);
+        });
+        document.addEventListener("webkitfullscreenchange", function () {
+          if (!document.webkitFullscreenElement) requestAnimationFrame(realignStoryScroll);
+        });
+
         function finishStory() {
           if (storyDone) return;
           storyDone = true;
@@ -314,6 +335,12 @@
           exitFullscreen();
           unlockContentScroll();
           if (bgMusic && bgMusic.src) bgMusic.play().catch(function () {});
+          // Fallback per i casi senza vera Fullscreen API (richiesta fallita
+          // o non supportata, es. fullscreen nativo iOS): lì "fullscreenchange"
+          // sopra non scatta, quindi ci riallineiamo comunque a breve.
+          requestAnimationFrame(function () {
+            requestAnimationFrame(realignStoryScroll);
+          });
         }
 
         storyVideoPlayBtn.addEventListener("click", function () {
