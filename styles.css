@@ -452,6 +452,26 @@ body {
   pointer-events: none;
 }
 
+/* Invito a continuare a scorrere: compare sull'ultimo fotogramma del video
+   quando finisce, per non lasciare l'impressione che il sito sia finito. */
+.story-video__continue {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: clamp(1.5rem, 6vh, 3.5rem);
+  transform: translateX(-50%);
+  margin-top: 0;
+  color: var(--white-warm);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease 0.3s;
+}
+.story-video--done .story-video__continue {
+  opacity: 0.85;
+  visibility: visible;
+}
+
 /* ==========================================================================
    Il cuore: il messaggio prima del regalo
    ========================================================================== */

@@ -294,12 +294,22 @@
               if (result && typeof result.catch === "function") result.catch(function () {});
             } catch (err) {}
           }
+          // iOS Safari: il fullscreen nativo del <video> (webkitEnterFullscreen)
+          // non passa da document.fullscreenElement, quindi va chiuso a parte,
+          // altrimenti resta a schermo intero sull'ultimo fotogramma finché
+          // l'utente non tocca "Fine" da solo.
+          if (storyVideo.webkitDisplayingFullscreen && storyVideo.webkitExitFullscreen) {
+            try {
+              storyVideo.webkitExitFullscreen();
+            } catch (err) {}
+          }
         }
 
         function finishStory() {
           if (storyDone) return;
           storyDone = true;
           storyVideoSection.classList.remove("story-video--active", "story-video--playing");
+          storyVideoSection.classList.add("story-video--done");
           storyVideo.pause();
           exitFullscreen();
           unlockContentScroll();
