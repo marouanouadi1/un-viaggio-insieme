@@ -362,6 +362,42 @@
   var giftboxLid = document.getElementById("giftbox-lid");
   var dismissed = false;
 
+  // Il "botto" dei coriandoli: un suono breve (svincolato dalla musica/melodia
+  // di sottofondo, che continua a parte) più una manciata di raffiche
+  // scaglionate nel tempo, per accompagnare tutta la durata del suono invece
+  // di un solo lampo isolato.
+  function playConfettiSound() {
+    if (!cfg.confettiSound || !cfg.confettiSound.src) return;
+    try {
+      var sfx = new Audio(cfg.confettiSound.src);
+      sfx.volume = typeof cfg.confettiSound.volume === "number" ? cfg.confettiSound.volume : 0.8;
+      sfx.play().catch(function () {});
+    } catch (e) {}
+  }
+
+  function celebrateWithConfetti() {
+    if (prefersReducedMotion || typeof confetti === "undefined") return;
+    var bursts = [
+      { delay: 0, particleCount: 70, spread: 65, startVelocity: 38, origin: { x: 0.5, y: 0.55 } },
+      { delay: 550, particleCount: 55, spread: 70, startVelocity: 34, origin: { x: 0.25, y: 0.5 } },
+      { delay: 1100, particleCount: 55, spread: 70, startVelocity: 34, origin: { x: 0.75, y: 0.5 } },
+      { delay: 1900, particleCount: 40, spread: 80, startVelocity: 30, origin: { x: 0.5, y: 0.5 } },
+    ];
+    bursts.forEach(function (b) {
+      setTimeout(function () {
+        confetti({
+          particleCount: b.particleCount,
+          spread: b.spread,
+          startVelocity: b.startVelocity,
+          gravity: 0.9,
+          ticks: 220,
+          colors: ["#c96f5c", "#e2946a", "#c9a15a", "#f6d9b8"],
+          origin: b.origin,
+        });
+      }, b.delay);
+    });
+  }
+
   function dismissCurtain() {
     if (dismissed || !curtain) return;
     dismissed = true;
@@ -372,17 +408,8 @@
     var musicStarted = startBackgroundMusic();
     if (!musicStarted) playChime();
 
-    if (!prefersReducedMotion && typeof confetti !== "undefined") {
-      confetti({
-        particleCount: 70,
-        spread: 65,
-        startVelocity: 38,
-        gravity: 0.9,
-        ticks: 220,
-        colors: ["#c96f5c", "#e2946a", "#c9a15a", "#f6d9b8"],
-        origin: { y: 0.55 },
-      });
-    }
+    playConfettiSound();
+    celebrateWithConfetti();
 
     function finish() {
       curtain.style.display = "none";

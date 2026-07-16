@@ -39,6 +39,14 @@ window.CONFIG = {
     volume: 0.55, // da 0 (muto) a 1 (massimo)
   },
 
+  // Facoltativo: il "botto" di coriandoli nell'istante esatto in cui si apre
+  // il pacco regalo. Parte una sola volta, insieme alla musica/melodia sopra
+  // (non la sostituisce). Lascia src vuoto per non avere nessun suono qui.
+  confettiSound: {
+    src: "assets/audio/party-popper.mp3",
+    volume: 0.8,
+  },
+
   // ============================================================
   // 🎬 LA NOSTRA STORIA: il video
   // ============================================================
