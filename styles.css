@@ -84,7 +84,7 @@ img { max-width: 100%; display: block; }
 }
 
 html {
-  scroll-behavior: auto; /* lo scroll fluido lo gestisce Lenis via JS */
+  scroll-behavior: auto; /* lo scroll fluido lo fa lo scroll-snap nativo su #content */
 }
 
 body {
@@ -92,15 +92,28 @@ body {
   background: var(--cream);
   color: var(--ink);
   overflow-x: hidden;
+  overflow-y: hidden; /* lo scroll reale avviene dentro #content, non sul body */
+  height: 100svh;
   -webkit-font-smoothing: antialiased;
 }
 
-body.scroll-locked {
-  overflow: hidden;
-  height: 100%;
+.hidden { display: none !important; }
+
+/* ==========================================================================
+   #content: unico contenitore di scroll, a slide con snap a schermo intero
+   ========================================================================== */
+#content {
+  height: 100svh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
-.hidden { display: none !important; }
+#content.is-locked {
+  overflow: hidden;
+}
 
 /* ==========================================================================
    Curtain (sipario d'apertura)
@@ -208,10 +221,45 @@ body.scroll-locked {
    ========================================================================== */
 .section {
   position: relative;
+  min-height: 100svh;
   padding: var(--section-pad-y) var(--section-pad-x);
   display: flex;
   align-items: center;
   justify-content: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* ==========================================================================
+   Reveal al primo ingresso in vista (gestito da IntersectionObserver in main.js)
+   ========================================================================== */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Il titolo del regalo si apre anche con un piccolo crescendo di scala */
+.gift__title[data-reveal] {
+  transform: translateY(28px) scale(0.9);
+  transition: opacity 1.1s ease, transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gift__title[data-reveal].is-visible {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #content { scroll-snap-type: y proximity; }
+  [data-reveal],
+  .gift__title[data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 .section__inner {
@@ -340,6 +388,8 @@ body.scroll-locked {
   justify-content: center;
   overflow: hidden;
   background: var(--gradient-deep);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .story-video__player {
@@ -447,7 +497,7 @@ body.scroll-locked {
 }
 
 /* ==========================================================================
-   Gift reveal (sezione pinned)
+   Gift reveal (crescendo all'ingresso, vedi .gift__title[data-reveal] sopra)
    ========================================================================== */
 .gift {
   min-height: 100svh;
@@ -466,44 +516,50 @@ body.scroll-locked {
 /* ==========================================================================
    Come funziona
    ========================================================================== */
-.steps { background: var(--cream-deep); }
+.steps {
+  background: var(--cream-deep);
+  /* Basato sull'altezza dello schermo (non sulla larghezza): su schermi molto
+     bassi (barra degli indirizzi visibile) il padding si riduce di più. */
+  padding-top: clamp(1rem, 4svh, 2.5rem);
+  padding-bottom: clamp(1rem, 4svh, 2.5rem);
+}
 .steps__title {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(1.7rem, 5vw, 2.6rem);
-  margin: 0 0 3rem;
+  font-size: clamp(1.3rem, 4.2vw, 2.6rem);
+  margin: 0 0 1rem;
 }
 .steps__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.75rem;
+  gap: 0.85rem;
 }
 .step {
   background: var(--white-warm);
   border-radius: 16px;
-  padding: 2.25rem 1.75rem;
+  padding: 1rem 1.25rem;
   box-shadow: 0 20px 40px -24px rgba(44, 33, 23, 0.28);
   text-align: center;
 }
 .step__icon {
   display: inline-flex;
-  width: 48px;
-  height: 48px;
+  width: 34px;
+  height: 34px;
   color: var(--terracotta);
-  margin-bottom: 1rem;
+  margin-bottom: 0.4rem;
 }
 .step__icon svg { width: 100%; height: 100%; }
 .step h3 {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.25rem;
-  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+  margin: 0 0 0.3rem;
   color: var(--ink);
 }
 .step p {
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: var(--ink-soft);
-  line-height: 1.55;
+  line-height: 1.4;
   margin: 0;
 }
 

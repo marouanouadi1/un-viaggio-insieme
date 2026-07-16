@@ -123,78 +123,53 @@
   }
 
   /* --------------------------------------------------------------------
-   * 3) Setup GSAP + ScrollTrigger + Lenis
+   * 3) #content: contenitore di scroll con snap a schermo intero.
+   * Lo scroll parte bloccato finché non si apre il sipario (vedi §5).
    * ------------------------------------------------------------------ */
   var hasGsap = typeof gsap !== "undefined";
-  if (hasGsap && typeof ScrollTrigger !== "undefined") {
-    gsap.registerPlugin(ScrollTrigger);
-  }
+  var scroller = document.getElementById("content");
 
-  var lenis = null;
-  if (!prefersReducedMotion && typeof Lenis !== "undefined") {
-    lenis = new Lenis({ duration: 1.15, smoothWheel: true });
-    lenis.on("scroll", function () {
-      if (hasGsap && typeof ScrollTrigger !== "undefined") ScrollTrigger.update();
-    });
-    if (hasGsap) {
-      gsap.ticker.add(function (time) {
-        lenis.raf(time * 1000);
-      });
-      gsap.ticker.lagSmoothing(0);
-    }
-    lenis.stop(); // scroll bloccato finché il sipario non viene aperto
-  } else {
-    document.body.classList.add("scroll-locked");
+  function lockContentScroll() {
+    if (scroller) scroller.classList.add("is-locked");
   }
+  function unlockContentScroll() {
+    if (scroller) scroller.classList.remove("is-locked");
+  }
+  lockContentScroll();
 
-  var heroReveals = hasGsap ? gsap.utils.toArray("#hero [data-reveal]") : [];
-  var allReveals = hasGsap ? gsap.utils.toArray("[data-reveal]") : [];
+  /* --------------------------------------------------------------------
+   * 3b) Reveal al primo ingresso in vista: una classe CSS ([data-reveal]
+   * → .is-visible) fa il lavoro che prima faceva ScrollTrigger; qui si
+   * osservano gli elementi (esclusi quelli dell'hero, che compaiono con
+   * l'apertura del sipario, vedi playHeroIntro).
+   * ------------------------------------------------------------------ */
+  var heroReveals = Array.prototype.slice.call(document.querySelectorAll("#hero [data-reveal]"));
+  var allReveals = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
   var scrollReveals = allReveals.filter(function (el) {
     return heroReveals.indexOf(el) === -1;
   });
 
-  if (hasGsap) {
-    if (prefersReducedMotion) {
-      // Nessuna animazione: tutto visibile da subito.
-      gsap.set(allReveals, { opacity: 1, y: 0, scale: 1, clearProps: "transform" });
-    } else {
-      gsap.set(allReveals, { opacity: 0, y: 28 });
-
-      scrollReveals.forEach(function (el) {
-        gsap.to(el, {
-          opacity: 1,
-          y: 0,
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 85%",
-            toggleActions: "play none none none",
-          },
-        });
-      });
-
-      // Sezione regalo: pin + crescendo dello scale/opacità sullo scroll.
-      var giftTitle = document.querySelector(".gift__title");
-      if (giftTitle && typeof ScrollTrigger !== "undefined") {
-        gsap.fromTo(
-          giftTitle,
-          { scale: 0.82, opacity: 0.35 },
-          {
-            scale: 1,
-            opacity: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: "#gift",
-              start: "top top",
-              end: "+=70%",
-              scrub: 1,
-              pin: true,
-            },
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+    // Nessuna animazione: tutto visibile da subito (lo stile [data-reveal]
+    // sotto prefers-reduced-motion mostra comunque i contenuti a schermo).
+    allReveals.forEach(function (el) {
+      el.classList.add("is-visible");
+    });
+  } else {
+    var revealObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
           }
-        );
-      }
-    }
+        });
+      },
+      { root: scroller, rootMargin: "0px 0px -15% 0px", threshold: 0 }
+    );
+    scrollReveals.forEach(function (el) {
+      revealObserver.observe(el);
+    });
   }
 
   /* --------------------------------------------------------------------
@@ -226,15 +201,6 @@
       } else {
         var storyLocked = false;
         var storyDone = false;
-
-        function lockScroll() {
-          if (lenis) lenis.stop();
-          else document.body.classList.add("scroll-locked");
-        }
-        function unlockScroll() {
-          if (lenis) lenis.start();
-          else document.body.classList.remove("scroll-locked");
-        }
 
         // Fullscreen reale del browser: va richiesto dentro un gesto utente
         // (il tocco su "play"), altrimenti i browser lo rifiutano. Su iOS
@@ -274,7 +240,7 @@
           storyVideoSection.classList.remove("story-video--active", "story-video--playing");
           storyVideo.pause();
           exitFullscreen();
-          unlockScroll();
+          unlockContentScroll();
           if (bgMusic && bgMusic.src) bgMusic.play().catch(function () {});
         }
 
@@ -296,11 +262,11 @@
               if (entry.isIntersecting && !storyLocked && !storyDone) {
                 storyLocked = true;
                 storyVideoSection.classList.add("story-video--active");
-                lockScroll();
+                lockContentScroll();
               }
             });
           },
-          { threshold: 0.6 }
+          { root: scroller, threshold: 0.6 }
         );
         storyObserver.observe(storyVideoSection);
       }
@@ -308,16 +274,11 @@
   }
 
   function playHeroIntro() {
-    if (!hasGsap) return;
-    if (prefersReducedMotion) {
-      gsap.set(heroReveals, { opacity: 1, y: 0 });
-      return;
-    }
-    gsap.timeline({ defaults: { ease: "power3.out" } }).to(heroReveals, {
-      opacity: 1,
-      y: 0,
-      duration: 1,
-      stagger: 0.15,
+    // Entrata scaglionata dei testi dell'hero: uno stagger via transition-delay,
+    // stessa idea della timeline GSAP che sostituisce (vedi [data-reveal] in styles.css).
+    heroReveals.forEach(function (el, i) {
+      if (!prefersReducedMotion) el.style.transitionDelay = i * 0.15 + "s";
+      el.classList.add("is-visible");
     });
   }
 
@@ -354,13 +315,8 @@
     function finish() {
       curtain.style.display = "none";
       curtain.setAttribute("aria-hidden", "true");
-      if (lenis) {
-        lenis.start();
-      } else {
-        document.body.classList.remove("scroll-locked");
-      }
+      unlockContentScroll();
       playHeroIntro();
-      if (hasGsap && typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
     }
 
     if (hasGsap) {
@@ -393,7 +349,4 @@
     });
   }
 
-  window.addEventListener("load", function () {
-    if (hasGsap && typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
-  });
 })();
