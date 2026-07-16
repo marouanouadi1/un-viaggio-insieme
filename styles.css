@@ -356,9 +356,17 @@ body {
 /* Variante per gli sfondi chiari (tease, steps): la linea di default è
    bianca, pensata per le sezioni scure (hero, heart, gift, closing). */
 .scroll-cue--ink .scroll-cue__line { background: rgba(44, 33, 23, 0.55); }
-/* "Come funziona" ha già poco spazio verticale (titolo + 3 card): qui il
-   richiamo prende meno margine per non spingere il contenuto fuori schermo. */
-.scroll-cue--tight { margin-top: 1.25rem; }
+/* "Come funziona" ha già poco spazio verticale (titolo + 3 card, spesso al
+   limite sugli schermi bassi con barra degli indirizzi visibile): qui il
+   richiamo non partecipa al flusso ma è ancorato in basso alla sezione,
+   così non spinge mai il contenuto fuori schermo. */
+.scroll-cue--floating {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(0.75rem, 3svh, 1.5rem);
+  transform: translateX(-50%);
+  margin-top: 0;
+}
 
 /* ==========================================================================
    Intermezzo scherzoso (età)
